@@ -1,0 +1,395 @@
+@import "../Styles/mixins.scss";
+@import "../Styles/variables";
+
+.ant-input-affix-wrapper {
+    height: 45px !important;
+    border: 1px solid #D4CFCC !important;
+    box-shadow: none !important;
+}
+
+.ant-form-item .ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
+    display: none;
+}
+
+.ant-select-selector {
+    height: 35px !important;
+    border: 1px solid #D4CFCC !important;
+    display: flex;
+    align-items: center;
+}
+
+label {
+    color: var(--271100, #271100) !important;
+    font-family: $fontFamily;
+    font-size: 14px !important;
+    font-style: normal;
+    font-weight: 500 !important;
+    line-height: normal;
+}
+
+.ant-select-focused .ant-select-selector,
+.ant-select-selector:focus,
+.ant-select-selector:active,
+.ant-select-selector:hover,
+.ant-select-open .ant-select-selector {
+    box-shadow: none !important;
+}
+
+.antd-custom-table {
+    margin-top: 20px;
+
+    .ant-table-tbody {
+        .ant-table-cell {
+            border-bottom: none !important;
+        }
+    }
+
+    .ant-table-thead {
+        .ant-table-cell {
+            color: $secondaryColor !important;
+            border-bottom: 3px solid #f8f6f4 !important;
+            background-color: white !important;
+
+            &::before {
+                display: none;
+            }
+        }
+    }
+}
+
+.table-action {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: #F76D00;
+    font-family: $fontFamily;
+
+}
+
+
+.ant-switch-checked {
+    background-color: #50C878 !important;
+    padding: 0%;
+    border: none !important;
+
+    button {
+        border: none !important;
+    }
+
+}
+
+.ant-switch-checked:hover {
+    background-color: #50C878 !important;
+    padding: 0%;
+
+
+
+}
+
+button {
+    height: 45px;
+    border: none;
+    background-color: $primaryColor;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 30px;
+    border-radius: 10px;
+    font-family: $fontFamily;
+    transition: all 0.3s;
+    cursor: pointer;
+
+    &:hover {
+        background-color: transparent;
+        border: 1px solid $primaryColor;
+        color: $primaryColor;
+    }
+}
+
+
+// .rbc-btn {
+//     background-color: #007bff !important; /* Change this to your desired button background color */
+//     color: #ffffff; /* Change this to your desired button text color */
+//     border: none !important;
+//     border-radius: 4px;
+//     cursor: pointer;
+//     padding: 8px 12px;
+//     margin-right: 4px;
+//   }
+
+//   .rbc-btn:hover {
+//     background-color: #0056b3; /* Change this to your desired button background color on hover */
+//   }
+
+
+.rbc-calendar {
+    height: auto !important;
+}
+
+
+.rbc-toolbar .rbc-toolbar-label {
+    color: #271100;
+    text-align: center;
+    font-family: $fontFamily;
+    font-size: $thirdFontSize;
+    font-style: normal;
+    font-weight: $fontBold;
+    line-height: normal;
+}
+
+.rbc-toolbar button.rbc-active {
+    background-color: $forthColor !important;
+    box-shadow: none !important;
+    color: #ffff !important;
+    font-weight: $fontBold;
+    border-color: $forthColor;
+}
+
+.rbc-toolbar button:active:hover {
+    background-color: $forthColor !important;
+    box-shadow: none !important;
+    color: #ffff !important;
+    font-weight: $fontBold;
+    border-color: $forthColor;
+}
+
+.rbc-time-view .rbc-allday-cell {
+    height: 0px !important;
+}
+
+.rbc-timeslot-group {
+    display: flex !important;
+    justify-content: center;
+
+    .rbc-time-slot {
+        flex: none;
+    }
+}
+
+.rbc-header {
+    button {
+        border: none;
+    }
+}
+
+.rbc-toolbar button:focus {
+    color: #ffff !important;
+    background-color: $forthColor !important;
+    border-color: $forthColor !important;
+
+}
+
+.ql-toolbar.ql-snow {
+    border-bottom: 5px solid #FAFAFA !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background-color: #fff;
+}
+
+
+.ant-input-textarea-custom {
+    border: none !important;
+    box-shadow: none !important;
+
+}
+
+
+.ant-pagination.ant-pagination-mini .ant-pagination-item-link {
+    margin: 0px !important;
+    color: #271100 !important;
+    background-color: white !important;
+    font-size: 16px !important;
+    width: 35px !important;
+    height: 35px !important;
+}
+
+.ant-pagination .ant-pagination-disabled .ant-pagination-item-link {
+    color: #D4CFCC !important;
+}
+
+.ant-table-wrapper .ant-table-pagination.ant-pagination {
+    gap: 10px !important;
+    display: flex;
+    justify-content: start !important;
+    // align-items: center;
+}
+
+.ant-pagination .ant-pagination-item-active {
+    border: none !important;
+    background-color: transparent !important;
+    width: 35px !important;
+    height: 35px !important;
+
+
+
+    a {
+        color: #F76D00 !important;
+        font-size: 16px !important;
+    }
+}
+
+.ant-pagination .ant-pagination-item {
+    width: 35px !important;
+    height: 35px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    a {
+        color: #271100;
+        font-size: 16px !important;
+    }
+}
+
+.ant-upload-wrapper .ant-upload-select{
+    width: 100% !important;
+    cursor: pointer !important;
+}
+
+.ant-upload-wrapper .ant-upload-list .ant-upload-list-item .ant-upload-list-item-actions .ant-upload-list-item-action.ant-btn-sm{
+    margin: 0px !important;
+}
+
+
+// spin
+
+
+.ant-spin-dot i {
+    background-color: #F76D00 !important;
+    /* Replace with your desired color */
+}
+
+.ant-spin-nested-loading{
+    height: 100% !important;
+}
+
+.ant-spin-nested-loading .ant-spin-container{
+    height: 100% !important;
+}
+
+// .ant-spin-nested-loading .ant-spin-blur{
+//     height: 100vh !important;
+// }
+
+
+// .ant-spin-nested-loading >div>.ant-spin{
+//     max-height: none !important;
+// }
+
+
+.ant-modal .ant-modal-close{
+    margin: 0%;
+}
+
+
+// Row Col 
+
+
+.row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    .span1 {
+        width: 4.16%;
+    }
+
+    .span2 {
+        width: 8.33%;
+    }
+
+    .span3 {
+        width: 12.5%;
+    }
+
+    .span4 {
+        width: 16.66%;
+    }
+
+    .span5 {
+        width: 20.83%;
+    }
+
+    .span6 {
+        width: 25%;
+    }
+
+    .span7 {
+        width: 29.23%;
+    }
+
+    .span8 {
+        width: 33.33%;
+    }
+
+    .span9 {
+        width: 37.59%;
+    }
+
+    .span10 {
+        width: 41.66%;
+    }
+
+    .span11 {
+        width: 45.87%;
+    }
+
+    .span12 {
+        width: 50%;
+    }
+
+    .span13 {
+        width: 54.34%;
+    }
+
+    .span14 {
+        width: 58.47%;
+    }
+
+    .span15 {
+        width: 62.5%;
+    }
+
+    .span16 {
+        width: 66.66%;
+    }
+
+    .span17 {
+        width: 70.92%;
+    }
+
+    .span18 {
+        width: 75.18%;
+    }
+
+    .span19 {
+        width: 79.36%;
+    }
+
+    .span20 {
+        width: 83.33%;
+    }
+
+    .span21 {
+        width: 87.71%;
+    }
+
+    .span22 {
+        width: 91.74%;
+    }
+
+    .span23 {
+        width: 96.15%;
+    }
+
+    .span24 {
+        width: 100%;
+    }
+
+
+
+}

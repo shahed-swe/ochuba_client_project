@@ -1,0 +1,218 @@
+@import "../mixins";
+@import "../variables";
+
+.side-bar-main {
+  width: 100px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  // padding: 10px;
+  // padding-top: 30px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  @media (max-width: 800px) {
+    display: none;
+    width: 0px;
+    height: 0;
+    visibility: hidden;
+    padding: 0;
+  }
+
+  a {
+    text-decoration: none;
+    color: #99a69d;
+    font-family: $fontFamily !important;
+  }
+
+  .side-bar-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+
+    .side-bar {
+      display: flex;
+      height: 90%;
+      flex-direction: column;
+      justify-content: space-between;
+
+      .side-bar-top-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        svg path {
+          cursor: pointer;
+          fill: #958070;
+        }
+
+        .side-bar-top-section-items {
+          margin-top: 36px;
+          display: flex;
+          flex-direction: column;
+          row-gap: 15px;
+
+          .side-bar-top-section-single-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: $thirdColor;
+            row-gap: 5px;
+
+            svg path {
+              fill: $dark;
+            }
+
+            &:hover {
+              color: $primaryColor;
+
+              svg path {
+                cursor: pointer;
+                fill: $primaryColor;
+              }
+            }
+
+            p {
+              font-family: $fontFamily;
+              font-weight: $fontNormal;
+              font-size: 12px;
+              text-align: center;
+              cursor: pointer;
+              margin: 0px;
+              color: $dark;
+
+              &:hover {
+                color: $primaryColor;
+              }
+            }
+          }
+
+          .active-side-bar-top-section-single-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: $thirdColor;
+            row-gap: 5px;
+            border-right: 2px solid $primaryColor;
+
+            p {
+              font-family: $fontFamily;
+              color: $primaryColor;
+              font-weight: $fontNormal;
+              font-size: 12px;
+              text-align: center;
+              cursor: pointer;
+              margin: 0px;
+            }
+
+            svg path {
+              fill: $primaryColor;
+            }
+          }
+        }
+      }
+
+      .side-bar-down-section {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        row-gap: 15px;
+
+        .notifaction-bell {
+          width: 39px;
+          height: 39px;
+          border-radius: 50%;
+          background-color: #f8f6f4;
+          // @include flex-center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .active-profile {
+          border: 3px solid $primaryColor;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+
+        .active-notification {
+          width: 39px;
+          height: 39px;
+          border-radius: 50%;
+          background-color: $primaryColor;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+
+          svg path {
+            fill: white !important;
+            padding: 0%;
+          }
+        }
+
+        .side-bar-profile {
+          min-width: 50px;
+          min-height: 50px;
+          max-width: 50px;
+          max-height: 50px;
+          border-radius: 50%;
+          p {
+            font-family: $fontFamily;
+          }
+          img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
+}
+
+.ant-collapse .ant-collapse-arrow {
+  right: 16px !important;
+  /* You can adjust the value as needed */
+  left: auto !important;
+}
+
+.option-arrow {
+  transform: rotate(180deg);
+  transition: 0.3s;
+}
+
+.activeA {
+  color: $primaryColor !important;
+  font-weight: $fontBold;
+  border-right: 2px solid $primaryColor;
+}
+
+.suboption {
+  color: $dark !important;
+  font-weight: $fontBold;
+}
+
+.suboption:hover {
+  color: $primaryColor !important;
+}
+
+.side-bar-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.side-bar-main::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.side-bar-main::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 5px;
+}
