@@ -3,18 +3,20 @@ import React, { useState } from "react";
 import "./payment.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "../../Redux/Reducers/gernalSlice";
+import { useNavigate } from "react-router-dom";
 
-const Flutterwave = ({ Amount,setIsPayment }) => {
+const Flutterwave = ({ Amount, setIsPayment }) => {
   const [loading, setLoading] = useState(false);
   const [cvc, setCVC] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [isExpired, setIsExpired] = useState(false);
   const [cardNumber, setCardNumber] = useState("");
 
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const token = useSelector((state) => state?.authReducer?.token);
+  const user = useSelector((state) => state?.authReducer?.user);
 
   const handleCardNumberChange = (event) => {
     const input = event.target.value.replace(/\D/g, ""); // Remove non-numeric characters
@@ -57,45 +59,53 @@ const Flutterwave = ({ Amount,setIsPayment }) => {
       expiry_year: expiryDate.slice(4).trim(),
       amount: Amount || "0",
     };
+    if ((cardNumber, cvc, expiryDate, Amount)) {
+      console.log("chalya a ka ni")
+      if (user?.email) {
+        setLoading(true);
 
-    setLoading(true)
-
-    fetch(`${baseUrl}/api/v1/admin/trading/payment`, {
-      method: "post",
-      headers: {
-          "Content-Type": "application/json",
-          "Authorization": token,
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setLoading(false);
-        if (data?.message) {
-          message.success(data?.message);
-          setIsPayment(false)
-          setCardNumber("")
-          setCVC("")
-          setExpiryDate("")
-          fetch(`${baseUrl}/api/v1/auth/user`, {
-            method: "get",
-            headers: {
-                "Authorization": token,
-            },
+        fetch(`${baseUrl}/api/v1/admin/trading/payment`, {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(formData),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setLoading(false);
+            if (data?.message) {
+              message.success(data?.message);
+              setIsPayment(false);
+              setCardNumber("");
+              setCVC("");
+              setExpiryDate("");
+              fetch(`${baseUrl}/api/v1/auth/user`, {
+                method: "get",
+                headers: {
+                  Authorization: token,
+                },
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  dispatch(setUserDetails(data?.data));
+                })
+                .catch((error) => {
+                  //   setLoading(false);
+                });
+            }
           })
-            .then((res) => res.json())
-            .then((data) => {
-                dispatch(setUserDetails(data?.data))
-            })
-            .catch(error => {
-            //   setLoading(false);
-            })
-      
-        }
-      })
-      .catch(error => {
-        setLoading(false);
-      })
+          .catch((error) => {
+            setLoading(false);
+          });
+      } else {
+        message.warning("Please Update Profile");
+        navigate("/profile");
+      }
+    } else {
+      message.warning("Please enter valid card details");
+    }
   };
 
   return (

@@ -179,7 +179,7 @@
 
                     button {
                         border: 1px solid gray;
-                        width: 48%;
+                        width: 100%;
                         height: 40px;
                         border-radius: 10px;
                         font-family: $fontFamily;
@@ -231,10 +231,12 @@
                 display: flex;
                 justify-content: space-between;
                 gap: 20px;
+                flex-flow: wrap;
+
 
                 .deposit {
                     background-color: #F3F3F3;
-                    padding: 15px 40px;
+                    padding: 15px 30px;
                     border: none;
                     border-radius: 100px;
                     cursor: pointer;

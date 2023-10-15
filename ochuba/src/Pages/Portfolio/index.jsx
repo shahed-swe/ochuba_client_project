@@ -29,13 +29,13 @@ const Protfolio = () => {
           <p className="heading">
             Total Earning
           </p>
-          <p className="value">{userDetails?.profit}</p>
+          <p className="value"><b> ₦ </b>{userDetails?.profit}</p>
         </Col>
         <Col className="mobile-responsive" span={mobileResponsive ? 24 : 8}>
           <p className="heading">
             Open Orders Value
           </p>
-          <p className="value">{userDetails?.bids?.reduce((acc, obj) => acc + parseInt(obj.bidamount), 0)}</p>
+          <p className="value"><b> ₦ </b>{userDetails?.bids?.reduce((acc, obj) => acc + parseInt(obj.bidamount), 0)}</p>
         </Col>
         <Col className="mobile-responsive" span={mobileResponsive ? 24 : 8}>
           <p className="heading">Shares</p>

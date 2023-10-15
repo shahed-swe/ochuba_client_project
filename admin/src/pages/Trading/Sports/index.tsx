@@ -242,6 +242,7 @@ const Sports = () => {
                 type="number"
                 name="yes"
                 id="yes"
+                placeholder="Enter yes amount"
                 className="ant-input-affix-wrapper"
                 onChange={onChangePrice}
               />
@@ -257,6 +258,7 @@ const Sports = () => {
                 type="number"
                 name="no"
                 id="no"
+                placeholder="Enter no amount"
                 className="ant-input-affix-wrapper"
                 onChange={onChangePrice}
               />

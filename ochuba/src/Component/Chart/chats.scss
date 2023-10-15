@@ -8,17 +8,23 @@
     padding: 20px;
 
     .outcome-yes {
-        background-color: #F2F2F2;
+        background-color: lightgray;
         padding: 7px 12px;
         border-radius: 7px;
         border: none;
         color: gray;
+        cursor: pointer;
+        &:hover{
+            background-color: gray;
+            color: lightgray;
+        }
     }
 
     .active-outcome-yes {
         background-color: #6F5BCB !important;
         color: #fff;
         border: none;
+
     }
 
 

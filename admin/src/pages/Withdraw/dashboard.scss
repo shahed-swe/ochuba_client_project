@@ -1,0 +1,77 @@
+@import "../../Styles/mixins.scss";
+@import "../../Styles/variables";
+
+.dasboard-main {
+  // height: 60vh;
+  // overflow-y: scroll;
+  // overflow-x: hidden;
+  // @media (max-width: 800px) {
+  //     height: 100vh;
+
+  // }
+
+  .ant-select-single {
+    width: 100%;
+  }
+}
+
+.antd-custom-table {
+  margin-top: 20px;
+
+  .ant-table-tbody {
+    .ant-table-cell {
+      border-bottom: none !important;
+    }
+  }
+
+  .ant-table-thead {
+    .ant-table-cell {
+      border-bottom: 3px solid #f8f6f4 !important;
+      background-color: white !important;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+}
+
+.table-action {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #f76d00;
+  cursor: pointer;
+}
+
+.all-trading {
+  font-family: $fontFamily;
+  font-size: large;
+}
+
+.noBtn {
+  background-color: #f76d00 !important;
+  color: #ffff !important;
+  &:hover {
+    border: 1px solid #f76d00 !important;
+    background-color: transparent !important;
+    color: #f76d00 !important;
+  }
+}
+
+.text-title{
+    font-family: $fontFamily;
+    font-weight: 600;
+    font-size: x-large;
+    text-align: center;
+}
+
+
+.end-point{
+  svg path{
+    fill: #0393DA !important;
+  }
+}

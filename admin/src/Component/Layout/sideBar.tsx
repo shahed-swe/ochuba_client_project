@@ -41,6 +41,12 @@ const SideBar = () => {
                                     <p>Dashboard</p>
                                 </div>
                             </Link>
+                            <Link to={"/admin/withdraw"} onClick={() => toggle("/admin/withdraw")}>
+                                <div className={location.includes("/admin/withdraw") ? "active-side-bar-top-section-single-item" : "side-bar-top-section-single-item"}>
+                                    <ReactSVG src={DashboardIcon} />
+                                    <p>Withdraw</p>
+                                </div>
+                            </Link>
                             <Link to={"#"} onClick={() => toggle("/admin/trading")}>
                                 <div className="side-bar-top-section-single-item">
                                     <ReactSVG src={TryAngleIcon} />

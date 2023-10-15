@@ -10,16 +10,16 @@ import {
   Modal,
   Row,
   Select,
+  Spin,
   message,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import "./wallet.scss";
-import { useNavigate } from "react-router-dom";
 import { DefaultNumber, result } from "./constant";
 import { useMediaQuery } from "react-responsive";
 import { image1, image2, image3, image4, image5 } from "../../assets";
 import Flutterwave from "../../Component/Payment/flutterwave";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "../../Redux/Reducers/gernalSlice";
 
 const Wallet = () => {
@@ -32,20 +32,30 @@ const Wallet = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenWithdraw, setIsModalOpenWithdraw] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [withdrawal, setWithdrawal] = useState("deposit");
   const [number, setNumber] = useState("");
   const [activeBtn, setActiveBtn] = useState("FLUTTERWAVE PAY");
   const [Amount, setAmount] = useState("");
   const [isModalCrypto, setIsModalCrypto] = useState("");
+  const [withdrawIban, setWithdrawIban] = useState("");
+
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+
 
   const userDetails = useSelector(
     (state) => state?.gernalReducer?.completeUser
   );
   const [open, setOpen] = useState(false);
 
-  const showDrawer = () => {
-    setOpen(true);
-  };
+  const token = useSelector((state) => state?.authReducer?.token);
+
+  const dispatch = useDispatch()
+
+
+
+
+
   const onClose = () => {
     setOpen(false);
   };
@@ -78,9 +88,6 @@ const Wallet = () => {
       setIsModalOpen(false);
       setIsModalOpenWithdraw(false);
       form.resetFields();
-      message.success(
-        "It will take 2 to 3 days for payment to get into your account"
-      );
       setAmount("");
     } else {
       message.warning("please your valid account number");
@@ -123,16 +130,65 @@ const Wallet = () => {
       }
     } else {
       if (Amount) {
-        showModalCrypto()
+        showModalCrypto();
       } else {
         message.warning("please enter detosit amount");
       }
     }
   };
 
-  const cryptoPayment=()=>{
-    message.error("Your blockchain network code is incorrect")
-  }
+  const cryptoPayment = () => {
+    message.error("Your blockchain network code is incorrect");
+  };
+
+  const withdrawFormHandler = () => {
+    const formData = {
+      IBAN: withdrawIban,
+      Amount: Amount,
+    };
+    if (Amount && Amount <= userDetails?.amount ) {
+      fetch(`${baseUrl}/api/v1/admin/trading/withdraw`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(formData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setLoading(false);
+          if (data.success) {
+            message.success(data.message);
+            form.resetFields();
+            setAmount("")
+            setWithdrawIban("")
+            showModalwithdrawOk()
+            fetch(`${baseUrl}/api/v1/auth/user`, {
+              method: "get",
+              headers: {
+                Authorization: token,
+              },
+            })
+              .then((res) => res.json())
+              .then((userData) => {
+                console.log("helloooooooooooooooooooooooooooooooo")
+                dispatch(setUserDetails(userData?.data));
+              })
+              .catch((error) => {
+                setLoading(false);
+              });
+          }
+        })
+        .catch((error) => {
+          setLoading(false);
+          message.error("Something went wrong")
+        });
+    }
+    else{
+      message.warning("Please enter valid amount")
+    }
+  };
 
   return (
     <div className="wallet">
@@ -253,7 +309,9 @@ const Wallet = () => {
                     <p className="first-text">Deposit Added</p>
                     <p className="second-text">Successfull Added</p>
                   </div>
-                  <p className="right-text">+{item}</p>
+                  <p className="right-text">
+                    +{item} <b> ₦ </b>
+                  </p>
                 </div>
               </div>
             ))}
@@ -263,7 +321,11 @@ const Wallet = () => {
           <div className="wallet-right-side">
             <div className="wellate-buttons">
               <button
-                onClick={() => setWithdrawal("deposit")}
+                onClick={() => {
+                  setWithdrawal("deposit");
+                  setAmount("");
+                  setNumber("");
+                }}
                 className={
                   withdrawal == "deposit" ? "activeButton deposit" : "deposit"
                 }
@@ -273,6 +335,8 @@ const Wallet = () => {
               <button
                 onClick={() => {
                   setWithdrawal("withdraw");
+                  setAmount("");
+                  setNumber("");
                 }}
                 className={
                   withdrawal == "withdraw" ? "activeButton deposit" : "deposit"
@@ -281,15 +345,17 @@ const Wallet = () => {
                 Withdraw
               </button>
             </div>
-            <p className="credits">Credits to be added (niagara currency)</p>
+            <p className="credits">
+              Credits to be added (<b> ₦ </b>)
+            </p>
             <Form form={form}>
               <Form.Item name="amout">
                 <Input
                   min={0}
-                  max={100000}
+                  max={1000}
                   className="ant-input-affix-wrapper"
                   type="number"
-                  placeholder="Enter Amout"
+                  placeholder="Enter Amout ₦"
                   onChange={(e) => setAmount(e.target.value)}
                 />
               </Form.Item>
@@ -311,6 +377,7 @@ const Wallet = () => {
                       key={index}
                     >
                       {item?.number}
+                      <b> ₦ </b>
                     </p>
                   ))}
                 </div>
@@ -318,10 +385,10 @@ const Wallet = () => {
                 <div className="selet-network">
                   <p>Select Network Type</p>
                   <div className="selet-network-button">
-                    {["FLUTTERWAVE PAY", "CRYPTO PAY"]?.map((item, index) => (
+                    {["FLUTTERWAVE PAY"]?.map((item, index) => (
                       <button
                         onClick={() => {
-                          setActiveBtn(item)
+                          setActiveBtn(item);
                         }}
                         className={activeBtn == item && "active-button"}
                         key={index}
@@ -331,17 +398,6 @@ const Wallet = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* <div className="text-area">
-              <p className="dec">
-                All your deposits will be pro}cessed in USDT only. Actual rates
-                may vary during the time of transaction.
-              </p>
-              <p className="dec">
-                We support ERC20 & TRC20 networks. For details please{" "}
-                <a>refer this .</a>
-              </p>
-            </div> */}
 
                 <div className="proceed">
                   <button
@@ -383,7 +439,9 @@ const Wallet = () => {
         open={isModalOpenWithdraw}
         onOk={showModalwithdrawOk}
       >
+        <Spin spinning={loading}>
         <Form
+        onFinish={withdrawFormHandler}
           layout="vertical"
           form={form}
           style={{
@@ -396,20 +454,17 @@ const Wallet = () => {
         >
           <Form.Item
             style={{ width: "100%" }}
-            name="withdrawAmount"
-            label="Account Number"
+            name="iban"
+            label="IBAN Number"
           >
             <Input
-              min={0}
-              max={100000}
               className="ant-input-affix-wrapper"
-              type="number"
-              placeholder="Enter Account Number"
-              onChange={(e) => setAmount(e.target.value)}
+              type="text"
+              placeholder="Enter IBAN Number"
+              onChange={(e) => setWithdrawIban(e.target.value)}
             />
           </Form.Item>
           <button
-            onClick={() => showModalwithdrawOk()}
             style={{
               width: "100px",
               background: "#0093DD",
@@ -422,6 +477,7 @@ const Wallet = () => {
             Submit
           </button>
         </Form>
+        </Spin>
       </Modal>
 
       {/* crypto modal */}
@@ -436,7 +492,6 @@ const Wallet = () => {
         onOk={showModalwithdrawOk}
       >
         <Form
-
           layout="vertical"
           form={form}
           style={{
@@ -453,11 +508,10 @@ const Wallet = () => {
                 style={{ width: "100%" }}
                 name="cryptoamount"
                 label="Amount"
-                rules={[{required:true}]}
+                rules={[{ required: true }]}
               >
                 <Input
                   min={0}
-                  
                   className="ant-input-affix-wrapper"
                   type="number"
                   placeholder="Enter Account Number"
@@ -467,7 +521,12 @@ const Wallet = () => {
             </Col>
 
             <Col span={12}>
-              <Form.Item rules={[{required:true}]} style={{ width: "100%" }}  name="form" label="Form (currency)">
+              <Form.Item
+                rules={[{ required: true }]}
+                style={{ width: "100%" }}
+                name="form"
+                label="Form (currency)"
+              >
                 <Select placeholder="Please select country">
                   {result?.map((item) => (
                     <Select.Option key={item?.to} value={item?.to}>
@@ -478,7 +537,12 @@ const Wallet = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item rules={[{required:true}]} style={{ width: "100%" }} name="to" label="To (currency)">
+              <Form.Item
+                rules={[{ required: true }]}
+                style={{ width: "100%" }}
+                name="to"
+                label="To (currency)"
+              >
                 <Select placeholder="Please select country">
                   {result?.map((item) => (
                     <Select.Option key={item?.to} value={item?.to}>
@@ -491,25 +555,23 @@ const Wallet = () => {
 
             <Col span={24}>
               <Form.Item
-              rules={[{required:true}]}
+                rules={[{ required: true }]}
                 style={{ width: "100%" }}
                 name="code"
                 label="Blockchain network code"
               >
                 <Input
                   min={0}
-                  
                   className="ant-input-affix-wrapper"
                   type="number"
                   placeholder="Enter Blockchain network code"
                 />
               </Form.Item>
             </Col>
-
           </Row>
 
           <button
-          type='submit'
+            type="submit"
             onClick={() => cryptoPayment()}
             style={{
               width: "100px",

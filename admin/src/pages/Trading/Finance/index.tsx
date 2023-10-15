@@ -13,7 +13,7 @@ type contectData = {
 type MyObject = {
   bid: String,
   share: String,
-  oldamount: String
+  bidamount: String
   // userId: String
 }
 
@@ -98,7 +98,7 @@ const Sports = () => {
     var newArr = [...bid, {
       bid: name,
       share: "1",
-      oldamount: value
+      bidamount: value
     }]
     setBid(newArr)
   };
@@ -241,6 +241,7 @@ const Sports = () => {
                 type="number"
                 name="yes"
                 id="yes"
+                placeholder="Enter yes amount"
                 className="ant-input-affix-wrapper"
                 onChange={onChangePrice}
               />
@@ -256,6 +257,7 @@ const Sports = () => {
                 type="number"
                 name="no"
                 id="no"
+                placeholder="Enter no amount"
                 className="ant-input-affix-wrapper"
                 onChange={onChangePrice}
               />

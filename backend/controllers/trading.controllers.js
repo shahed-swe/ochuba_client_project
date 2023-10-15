@@ -1,7 +1,9 @@
 const Trading = require("../models/Trading");
+const Withdraw = require("../models/Withdraw");
 const User = require("../models/User");
 const Flutterwave = require("flutterwave-node-v3");
 const flw = new Flutterwave(process.env.PUBLIC_KEY, process.env.SECRET_KEY);
+const ErrorResponse = require("../utils/errorResponse");
 
 exports.createTrading = async (req, res, next) => {
   try {
@@ -33,6 +35,93 @@ exports.createTrading = async (req, res, next) => {
       message: err.message,
       data: [],
     });
+  }
+};
+
+exports.Withdraw = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.data[1]);
+    req.body.User = { id: req.user.data[1], phoneNumber: user.phoneNumber };
+    let withdraw = new Withdraw({
+      ...req.body,
+      Status: "pending"
+    });
+
+    const result = await withdraw.save();
+
+    if (!result) {npm 
+      return res.status(400).json({
+        success: false,
+        message: "Failed to Create the Withdraw",
+        data: [],
+      });
+    }
+
+    // Find the Trading document by its ID
+   
+
+    // Add the charge to the trading's bidding array
+    user.amount = parseInt(user.amount) - parseInt(req.body.Amount);
+
+    user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully Created the Withdraw`,
+      withdraw: result
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+      data: [],
+    });
+  }
+};
+
+exports.findWithdraws = async (req, res, next) => {
+  try {
+    const withdraws = await Withdraw.find({});
+
+    if (withdraws) {
+      return res.status(200).json({
+        success: true,
+        message: "Got Data Successfully",
+        data: withdraws.reverse(),
+      });
+    }
+    return res.status(200).json({
+      success: false,
+      message: "No Data Found",
+      data: [],
+    });
+  } catch (err) {
+    return res.status(200).json({
+      success: false,
+      message: err.message,
+      data: [],
+    });
+  }
+};
+
+
+exports.withdrawComplete = async (req, res, next) => {
+  try {
+    const result = await Withdraw.findByIdAndUpdate(req.params.id, {Status: "complete"});
+
+    if (!result) {
+      return next(new ErrorResponse("Update failed", 400));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Successfully Update the Withdraw",
+      user: result,
+    });
+  } catch (err) {
+    console.log(err);
+    return next(new ErrorResponse(err, 400));
   }
 };
 
@@ -167,7 +256,7 @@ exports.calculateResult = async (req, res, next) => {
 
 exports.Sell = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log(req.body);
     const { oldamount, latestamount, share, bid } = req.body;
 
     var newAmount =
@@ -178,7 +267,8 @@ exports.Sell = async (req, res) => {
     const user = await User.findById(req.user.data[1]);
 
     // Add the charge to the trading's bidding array
-    user.amount = parseInt(user.amount) + parseInt(latestamount) - parseInt(result);
+    user.amount =
+      parseInt(user.amount) + parseInt(latestamount) - parseInt(result);
     user.profit = parseInt(user.profit) + parseInt(newAmount);
 
     const existingBidIndex = user.bids.findIndex(
@@ -191,7 +281,8 @@ exports.Sell = async (req, res) => {
       user.bids[existingBidIndex].share = (
         parseFloat(user.bids[existingBidIndex].share) - parseFloat(share)
       ).toFixed(2);
-      user.bids[existingBidIndex].sold = user.bids[existingBidIndex].share > 0 ? false: true
+      user.bids[existingBidIndex].sold =
+        user.bids[existingBidIndex].share > 0 ? false : true;
       // Mark the 'bids' array as modified
       user.markModified("bids");
     }
@@ -274,7 +365,7 @@ exports.Bid = async (req, res) => {
         bidamount: bidamount,
         tradingId: trading.id,
         tradingName: trading.title,
-        sold: false
+        sold: false,
       });
     }
 
@@ -301,7 +392,7 @@ exports.Payment = async (req, res) => {
       expiry_year: expiry_year,
       currency: "NGN",
       amount: amount,
-      email: req.user.data[0],
+      email: user.email,
       fullname: user.fullName,
       tx_ref: "YOUR_PAYMENT_REFERENCE",
       enckey: process.env.ENCRYPTION_KEY,

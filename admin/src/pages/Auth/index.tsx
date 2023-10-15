@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Col, Form, Input, Row, Spin } from "antd";
+import { Col, Form, Input, Row, Spin, message } from "antd";
 import { Logo, Ochuba } from "../../assets";
 import "./auth.scss";
 import "../../GeneralStyle/index.scss";
@@ -28,11 +28,19 @@ const Login = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        dispatch(setUser(data.user));
-        dispatch(setToken(data.token));
+        if (data?.success) {
+          dispatch(setUser(data.user));
+          dispatch(setToken(data.token));
+          setLoading(false);
+          navigate("/admin/trading/sports");
+        } else {
+          message.error("Invalid username or passsword");
+          setLoading(false);
+        }
+      }).catch(()=>{
+        message.error("Invalid username or passsword");
         setLoading(false);
-        navigate("/admin/trading/sports");
-      });
+      })
   };
 
   const onChange = (e: any) => {

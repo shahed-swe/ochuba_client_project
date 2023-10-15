@@ -20,8 +20,6 @@ const TradingScreen = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [completeUserDetails, setCompleteUserDetails] = useState({});
 
-
-
   const [selectedtradingShare, setSelectedtradingShare] = useState([]);
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -62,7 +60,7 @@ const TradingScreen = () => {
           : noBids[noBids?.length - 1]?.bidamount,
     };
 
-    if (doller) {
+    if (doller && doller <= 1000 && doller >= 10 ) {
       setLoading(true);
 
       fetch(`${baseUrl}/api/v1/admin/trading/bid/${bidId?.id}`, {
@@ -101,7 +99,7 @@ const TradingScreen = () => {
           setLoading(false);
         });
     } else {
-      message.warning("Please enter valid amonut");
+      message.warning("Please enter an amount grater then 10 and less then or equal to 1000");
     }
   };
 
@@ -358,7 +356,9 @@ const TradingScreen = () => {
                 </button>
               </div>
             </div>
-            <p className="credits">Credits to be added (niagara currency)</p>
+            <p className="credits">
+              Credits to be added (<b> ₦ </b>)
+            </p>
 
             <Form layout="vertical" form={form}>
               {buyOrSell == "buy" ? (
@@ -378,7 +378,7 @@ const TradingScreen = () => {
                       min={0}
                       className="ant-input-affix-wrapper"
                       type="number"
-                      placeholder="Enter Amout"
+                      placeholder="Enter Amout ₦"
                     />
                   </Form.Item>
                   <div>
@@ -449,31 +449,55 @@ const TradingScreen = () => {
 
                   {userDetails?.amount < doller ? (
                     <div className="proceed">
-                      <button
-                        onClick={() => {
-                          message.warning("Please Recharge your account");
-                          navigate("/wallet");
-                        }}
-                        className={
-                          (outcomeBtn == "yes" && "active-outcome-yes") ||
-                          (outcomeBtn == "no" && "active-outcome-no  ")
-                        }
-                      >
-                        Add {doller - userDetails?.amount}
-                      </button>
+                      {token ? (
+                        <button
+                          onClick={() => {
+                            message.warning("Please Recharge your account");
+                            navigate("/wallet");
+                          }}
+                          className={
+                            (outcomeBtn == "yes" && "active-outcome-yes") ||
+                            (outcomeBtn == "no" && "active-outcome-no  ")
+                          }
+                        >
+                          Add {doller - userDetails?.amount}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => navigate("/login")}
+                          className={
+                            (outcomeBtn == "yes" && "active-outcome-yes") ||
+                            (outcomeBtn == "no" && "active-outcome-no  ")
+                          }
+                        >
+                          Sign up to Ochuba
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="proceed">
-                      <button
-                        disabled={!doller}
-                        onClick={() => formHandler()}
-                        className={
-                          (outcomeBtn == "yes" && "active-outcome-yes") ||
-                          (outcomeBtn == "no" && "active-outcome-no  ")
-                        }
-                      >
-                        Proceed
-                      </button>
+                      {token ? (
+                        <button
+                          disabled={!doller}
+                          onClick={() => formHandler()}
+                          className={
+                            (outcomeBtn == "yes" && "active-outcome-yes") ||
+                            (outcomeBtn == "no" && "active-outcome-no  ")
+                          }
+                        >
+                          Proceed
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => navigate("/login")}
+                          className={
+                            (outcomeBtn == "yes" && "active-outcome-yes") ||
+                            (outcomeBtn == "no" && "active-outcome-no  ")
+                          }
+                        >
+                          Sign up to Ochuba
+                        </button>
+                      )}
                     </div>
                   )}
                 </>
@@ -494,7 +518,7 @@ const TradingScreen = () => {
                       min={0}
                       className="ant-input-affix-wrapper"
                       type="number"
-                      placeholder="Enter Amout"
+                      placeholder="Enter share"
                     />
                   </Form.Item>
 
@@ -553,16 +577,28 @@ const TradingScreen = () => {
                   </div>
 
                   <div className="proceed">
-                    <button
-                      disabled={!sellAmount}
-                      onClick={() => formSellHandler()}
-                      className={
-                        (outcomeBtn == "yes" && "active-outcome-yes") ||
-                        (outcomeBtn == "no" && "active-outcome-no  ")
-                      }
-                    >
-                      Proceed
-                    </button>
+                    {token ? (
+                      <button
+                        disabled={!sellAmount}
+                        onClick={() => formSellHandler()}
+                        className={
+                          (outcomeBtn == "yes" && "active-outcome-yes") ||
+                          (outcomeBtn == "no" && "active-outcome-no  ")
+                        }
+                      >
+                        Proceed
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => navigate("/login")}
+                        className={
+                          (outcomeBtn == "yes" && "active-outcome-yes") ||
+                          (outcomeBtn == "no" && "active-outcome-no  ")
+                        }
+                      >
+                        Sign up to Ochuba
+                      </button>
+                    )}
                   </div>
                 </>
               )}

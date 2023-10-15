@@ -5,11 +5,10 @@ import Politics from "../../pages/Trading/Politics";
 import Finance from "../../pages/Trading/Finance";
 import Media from "../../pages/Trading/Media";
 import Dashboard from "../../pages/Dashboard";
+import Withdraw from "../../pages/Withdraw";
 
 
-const HomeRoutes = () => {
-
-    
+const HomeRoutes = () => {   
 
     return (
         <Routes>
@@ -17,6 +16,7 @@ const HomeRoutes = () => {
             <Route path={"*" } element={<Navigate to="/admin/dashboard" replace />} />
             {/* Dashboard */}
             <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/withdraw" element={<Withdraw />} />
             <Route path="/admin/trading/sports" element={<Sports />} />
             <Route path="/admin/trading/news" element={<News />} />
             <Route path="/admin/trading/politics" element={<Politics />} />
