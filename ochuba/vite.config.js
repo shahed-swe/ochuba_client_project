@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   define: {
-    'import.meta.env.VITE_BASE_URL': JSON.stringify('http://localhost:5000'),
+    'import.meta.env.VITE_BASE_URL': JSON.stringify('https://api.ochuba.com'),
   },
   esbuild: {
     jsxFactory: 'h', // Specify your JSX factory, if needed
