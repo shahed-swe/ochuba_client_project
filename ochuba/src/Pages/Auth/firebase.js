@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 const firebaseConfig = {
     apiKey: "AIzaSyDkRucwgjMCjRYDZWEV9SwPc19jdbr76IE",
     // authDomain: "localhost:9090",
-    authDomain: "https://ochuba.com",
+    authDomain: "ochuba.com",
     // authDomain: "ochuba.firebaseapp.com",
     projectId: "ochuba",
     storageBucket: "ochuba.appspot.com",
