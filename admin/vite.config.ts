@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/admin',
   define: {
-    'import.meta.env.VITE_BASE_URL': JSON.stringify('https://api.ochuba.com'),
+    'import.meta.env.VITE_BASE_URL': JSON.stringify('http://localhost:5000'),
   },
 })
  

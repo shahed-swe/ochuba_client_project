@@ -202,3 +202,25 @@
 
     }
 }
+
+.mobile-btns{
+    display: flex;
+    justify-content: space-around;
+    
+    .outcome-yes{
+        background-color: #6F5BCB !important;
+        color: #fff;
+        padding: 20px 40px;
+        border-radius: 10px;
+        border: none;
+    }
+
+    .outcome-no {
+        background-color: #D762AE !important;
+        color: #fff;
+        padding: 20px 40px;
+        border-radius: 10px;
+        border: none;
+    }
+
+}

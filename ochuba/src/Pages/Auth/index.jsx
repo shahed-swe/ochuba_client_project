@@ -40,6 +40,7 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [code, setCode] = useState("");
   const [confirmationResult, setConfirmationResult] = useState(null);
+  console.log(confirmationResult?.verificationId,"confirmationResult")
   const auth = getAuth(app);
 
   const handleSendCode = async (e) => {
@@ -51,6 +52,7 @@ const Login = () => {
       });
       const confirmation = await signInWithPhoneNumber(
         auth,
+        // `+92${e.phone_number}`,
         `+234${e.phone_number}`,
         verifier
       );
@@ -60,8 +62,7 @@ const Login = () => {
       // SMS sent successfully, handle UI or further actions
     } catch (error) {
       console.error("Error sending SMS:", error);
-      setLoading(false);
-      message.error('Please enter previous code')
+      setLoading(false);a
     }
   };
 
@@ -81,7 +82,7 @@ const Login = () => {
           });
         // User is authenticated, handle UI or further actions
       } catch (error) {
-        console.error("Error verifying code:", error);
+        console.error("Error verifying code : ", error);
         setLoading(false);
       }
     } else {
@@ -207,7 +208,7 @@ const Login = () => {
                       </Form.Item>
                     </Col>
                     <Col span={24}>
-                      <button type="submit" style={{ width: "100%" }}>
+                      <button disabled={confirmationResult?.verificationId} type="submit" style={{ width: "100%" }}>
                         Get OTP via SMS
                       </button>
                     </Col>

@@ -1,4 +1,4 @@
-import { Card, Col, Form, Input, Row, Spin, message } from "antd";
+import { Card, Col, Form, Input, Modal, Row, Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import RenderLineChart from "../lineChart";
 import "./chats.scss";
@@ -17,10 +17,12 @@ const TradingScreen = () => {
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState([]);
   const [noBids, setNoBids] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmountYes, setTotalAmountYes] = useState(0);
+  const [totalAmountNo, setTotalAmountNo] = useState(0);
   const [completeUserDetails, setCompleteUserDetails] = useState({});
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedtradingShare, setSelectedtradingShare] = useState([]);
+
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -60,7 +62,7 @@ const TradingScreen = () => {
           : noBids[noBids?.length - 1]?.bidamount,
     };
 
-    if (doller && doller <= 1000 && doller >= 10 ) {
+    if (doller && doller <= 1000 && doller >= 10) {
       setLoading(true);
 
       fetch(`${baseUrl}/api/v1/admin/trading/bid/${bidId?.id}`, {
@@ -99,12 +101,14 @@ const TradingScreen = () => {
           setLoading(false);
         });
     } else {
-      message.warning("Please enter an amount grater then 10 and less then or equal to 1000");
+      message.warning(
+        "Please enter an amount grater then 10 and less then or equal to 1000"
+      );
     }
   };
 
   const getAllBids = () => {
-    setTotalAmount(0);
+    setTotalAmountYes(0);
     fetch(`${baseUrl}/api/v1/admin/trading/single/${bidId?.id}`, {
       method: "get",
       headers: {
@@ -117,13 +121,20 @@ const TradingScreen = () => {
         setChartData(
           userData?.data?.bids?.filter((item) => item?.bid == "yes")
         );
+        setIsModalOpen(false);
         // setSelectedtradingShare(userDetails?.length ? userDetails?.bids?.filter((item)=> item))
-
         setNoBids(userData?.data?.bids?.filter((item) => item?.bid == "no"));
         for (let i = 0; i < userData?.data?.bids?.length; i++) {
-          setTotalAmount(
-            (pre) => pre + parseInt(userData?.data?.bids[i]?.bidamount)
-          );
+          if(userData?.data?.bids[i]?.bid == "yes"){
+            setTotalAmountYes(
+              (pre) => pre + parseInt(userData?.data?.bids[i]?.bidamount)
+            );
+          }
+          else{
+            setTotalAmountNo(
+              (pre) => pre + parseInt(userData?.data?.bids[i]?.bidamount)
+            );
+          }
         }
       })
       .catch((error) => {
@@ -188,6 +199,7 @@ const TradingScreen = () => {
               .then((userData) => {
                 dispatch(setUserDetails(userData?.data));
                 getAllBids();
+                setIsModalOpen(false);
               })
               .catch((error) => {
                 setLoading(false);
@@ -200,6 +212,18 @@ const TradingScreen = () => {
     } else {
       message.warning("Please enter valid share");
     }
+  };
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -265,8 +289,43 @@ const TradingScreen = () => {
                   alignItems: "center",
                 }}
               >
-                <p>Total Amount</p>
-                <p>{totalAmount || 0}</p>
+                <p>Total Amount Yes</p>
+                <p>{totalAmountYes || 0}</p>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <p>Total Amount No</p>
+                <p>{totalAmountNo || 0}</p>
+              </div>
+             
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <p style={{ marginTop: "0px" }}>Number of Yes Bids</p>
+                <p style={{ marginTop: "0px" }}>
+                  {chartData?.length || "0"}
+                </p>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <p style={{ marginTop: "0px" }}>Number of No Bids</p>
+                <p style={{ marginTop: "0px" }}>
+                  {noBids?.length || "0"}
+                </p>
               </div>
               <div
                 style={{
@@ -280,6 +339,38 @@ const TradingScreen = () => {
                   style={{ marginTop: "0px" }}
                 >{`${completeUserDetails?.endDate} ${completeUserDetails?.endTime}`}</p>
               </div>
+              <h3>Market Resolution</h3>
+              <p>{completeUserDetails?.resolution}</p>
+            </Card>
+          </Col>
+        )}
+
+        {mobileResponsive ? (
+          <Col span={24}>
+            <div className="mobile-btns">
+              <button
+                onClick={() => {
+                  setOutcomeBtn("yes");
+                  showModal();
+                }}
+                className={"outcome-yes"}
+              >
+                Buy Yes
+              </button>
+              <button
+                onClick={() => {
+                  setOutcomeBtn("no");
+                  showModal();
+                }}
+                className={"outcome-no"}
+              >
+                Buy No
+              </button>
+            </div>
+          </Col>
+        ) : (
+          <Col span={mobileResponsive ? 24 : 8}>
+            <div className="wallet-right-side">
               <div
                 style={{
                   display: "flex",
@@ -287,199 +378,343 @@ const TradingScreen = () => {
                   alignItems: "center",
                 }}
               >
-                <p style={{ marginTop: "0px" }}>Number of Bids</p>
-                <p style={{ marginTop: "0px" }}>
-                  {completeUserDetails?.bids?.length}
-                </p>
+                <div className="trading-yeschart">
+                  <button
+                    onClick={() => setBuyOrSell("buy")}
+                    className={buyOrSell == "buy" ? "yes activeButton" : "yes"}
+                  >
+                    Buy
+                  </button>
+                  <button
+                    onClick={() => setBuyOrSell("sell")}
+                    className={buyOrSell == "sell" ? "yes activeButton" : "yes"}
+                  >
+                    Sell
+                  </button>
+                </div>
+                <span>Market</span>
               </div>
-              <h3>Market Resolution</h3>
-              <p>{completeUserDetails?.resolution}</p>
-            </Card>
-          </Col>
-        )}
 
-        <Col span={mobileResponsive ? 24 : 8}>
-          <div className="wallet-right-side">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div className="trading-yeschart">
-                <button
-                  onClick={() => setBuyOrSell("buy")}
-                  className={buyOrSell == "buy" ? "yes activeButton" : "yes"}
-                >
-                  Buy
-                </button>
-                <button
-                  onClick={() => setBuyOrSell("sell")}
-                  className={buyOrSell == "sell" ? "yes activeButton" : "yes"}
-                >
-                  Sell
-                </button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "10px",
+                }}
+              >
+                <p>Outcome</p>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    onClick={() => setOutcomeBtn("yes")}
+                    className={
+                      outcomeBtn == "yes"
+                        ? "outcome-yes active-outcome-yes"
+                        : "outcome-yes"
+                    }
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setOutcomeBtn("no")}
+                    className={
+                      outcomeBtn == "no"
+                        ? "outcome-yes active-outcome-no"
+                        : "outcome-yes"
+                    }
+                  >
+                    No
+                  </button>
+                </div>
               </div>
-              <span>Market</span>
-            </div>
+              <p className="credits">
+                Credits to be added (<b> ₦ </b>)
+              </p>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: "10px",
-              }}
-            >
-              <p>Outcome</p>
-              <div style={{ display: "flex", gap: 10 }}>
-                <button
-                  onClick={() => setOutcomeBtn("yes")}
-                  className={
-                    outcomeBtn == "yes"
-                      ? "outcome-yes active-outcome-yes"
-                      : "outcome-yes"
-                  }
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => setOutcomeBtn("no")}
-                  className={
-                    outcomeBtn == "no"
-                      ? "outcome-yes active-outcome-no"
-                      : "outcome-yes"
-                  }
-                >
-                  No
-                </button>
-              </div>
-            </div>
-            <p className="credits">
-              Credits to be added (<b> ₦ </b>)
-            </p>
-
-            <Form layout="vertical" form={form}>
-              {buyOrSell == "buy" ? (
-                <>
-                  <Form.Item
-                    name="amout"
-                    label="Amount"
-                    rules={[
-                      {
-                        required: true,
-                        message: "please enter your amount",
-                      },
-                    ]}
-                  >
-                    <Input
-                      onChange={(e) => setDoller(e.target.value)}
-                      min={0}
-                      className="ant-input-affix-wrapper"
-                      type="number"
-                      placeholder="Enter Amout ₦"
-                    />
-                  </Form.Item>
-                  <div>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
+              <Form layout="vertical" form={form}>
+                {buyOrSell == "buy" ? (
+                  <>
+                    <Form.Item
+                      name="amout"
+                      label="Amount"
+                      rules={[
+                        {
+                          required: true,
+                          message: "please enter your amount",
+                        },
+                      ]}
                     >
-                      Available Blance : {userDetails?.amount}
-                    </p>
-                  </div>
-
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      Average Price
-                    </p>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      {outcomeBtn == "yes" &&
-                        chartData[chartData?.length - 1]?.bidamount}
-                      {outcomeBtn == "no" &&
-                        noBids[noBids?.length - 1]?.bidamount}
-                    </p>
-                  </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      Est. Shares
-                    </p>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      {outcomeBtn == "yes" &&
-                        (
-                          doller / chartData[chartData?.length - 1]?.bidamount
-                        ).toFixed(2)}
-                      {outcomeBtn == "no" &&
-                        (
-                          doller / noBids[noBids?.length - 1]?.bidamount
-                        ).toFixed(2)}
-                    </p>
-                  </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      Potential Returns
-                    </p>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      {doller * 1.16 || "0.00"}
-                      <b style={{ color: "#0092DA" }}>(ROI : 1.16 X)</b>
-                    </p>
-                  </div>
-
-                  <div className="text-area">
-                    <p className="dec">Trading Fee: 10% of profit</p>
-                  </div>
-
-                  {userDetails?.amount < doller ? (
-                    <div className="proceed">
-                      {token ? (
-                        <button
-                          onClick={() => {
-                            message.warning("Please Recharge your account");
-                            navigate("/wallet");
-                          }}
-                          className={
-                            (outcomeBtn == "yes" && "active-outcome-yes") ||
-                            (outcomeBtn == "no" && "active-outcome-no  ")
-                          }
-                        >
-                          Add {doller - userDetails?.amount}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => navigate("/login")}
-                          className={
-                            (outcomeBtn == "yes" && "active-outcome-yes") ||
-                            (outcomeBtn == "no" && "active-outcome-no  ")
-                          }
-                        >
-                          Sign up to Ochuba
-                        </button>
-                      )}
+                      <Input
+                        onChange={(e) => setDoller(e.target.value)}
+                        min={0}
+                        className="ant-input-affix-wrapper"
+                        type="number"
+                        placeholder="Enter Amout ₦"
+                      />
+                    </Form.Item>
+                    <div>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Available Balance : {userDetails?.amount}
+                      </p>
                     </div>
-                  ) : (
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Average Price
+                      </p>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {outcomeBtn == "yes" &&
+                          chartData[chartData?.length - 1]?.bidamount}
+                        {outcomeBtn == "no" &&
+                          noBids[noBids?.length - 1]?.bidamount}
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Est. Shares
+                      </p>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {selectedtradingShare?.share || "0"}
+                      </p>
+                    </div>
+                    {/* <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Potential Returns
+                      </p>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {doller * 1.16 || "0.00"}
+                        <b style={{ color: "#0092DA" }}>(ROI : 1.16 X)</b>
+                      </p>
+                    </div> */}
+
+                    <div className="text-area">
+                      <p className="dec">Trading Fee: 10% of profit</p>
+                    </div>
+
+                    {userDetails?.amount < doller ? (
+                      <div className="proceed">
+                        {token ? (
+                          <button
+                            onClick={() => {
+                              message.warning("Please Recharge your account");
+                              navigate("/wallet");
+                            }}
+                            className={
+                              (outcomeBtn == "yes" && "active-outcome-yes") ||
+                              (outcomeBtn == "no" && "active-outcome-no  ")
+                            }
+                          >
+                            Add {doller - userDetails?.amount}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => navigate("/login")}
+                            className={
+                              (outcomeBtn == "yes" && "active-outcome-yes") ||
+                              (outcomeBtn == "no" && "active-outcome-no  ")
+                            }
+                          >
+                            Sign up to Ochuba
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="proceed">
+                        {token ? (
+                          <button
+                            disabled={!doller}
+                            onClick={() => formHandler()}
+                            className={
+                              (outcomeBtn == "yes" && "active-outcome-yes") ||
+                              (outcomeBtn == "no" && "active-outcome-no  ")
+                            }
+                          >
+                            Proceed
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => navigate("/login")}
+                            className={
+                              (outcomeBtn == "yes" && "active-outcome-yes") ||
+                              (outcomeBtn == "no" && "active-outcome-no  ")
+                            }
+                          >
+                            Sign up to Ochuba
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Form.Item
+                      name="amout"
+                      label="Shares"
+                      rules={[
+                        {
+                          required: true,
+                          message: "please enter your share",
+                        },
+                      ]}
+                    >
+                      <Input
+                        onChange={(e) => setsellAmount(e.target.value)}
+                        min={0}
+                        className="ant-input-affix-wrapper"
+                        type="number"
+                        placeholder="Enter share"
+                      />
+                    </Form.Item>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Available Shares
+                      </p>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {selectedtradingShare?.share || "0"}
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Shares Price
+                      </p>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {outcomeBtn == "yes" &&
+                          chartData[chartData?.length - 1]?.bidamount}
+                        {outcomeBtn == "no" &&
+                          noBids[noBids?.length - 1]?.bidamount}
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        Potential Returns
+                      </p>
+                      <p
+                        style={{
+                          margin: "0px",
+                          color: "gray",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {outcomeBtn == "yes" &&
+                          chartData[chartData?.length - 1]?.bidamount *
+                            sellAmount}
+                        {outcomeBtn == "no" &&
+                          noBids[noBids?.length - 1]?.bidamount * sellAmount}
+                      </p>
+                    </div>
+
+                    <div className="text-area">
+                      <p className="dec">Trading Fee: 10% of profit</p>
+                    </div>
+
                     <div className="proceed">
                       {token ? (
                         <button
-                          disabled={!doller}
-                          onClick={() => formHandler()}
+                          disabled={!sellAmount}
+                          onClick={() => formSellHandler()}
                           className={
                             (outcomeBtn == "yes" && "active-outcome-yes") ||
                             (outcomeBtn == "no" && "active-outcome-no  ")
@@ -499,112 +734,432 @@ const TradingScreen = () => {
                         </button>
                       )}
                     </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Form.Item
-                    name="amout"
-                    label="Shares"
-                    rules={[
+                  </>
+                )}
+              </Form>
+            </div>
+          </Col>
+        )}
+
+        <Modal
+          onOk={handleOk}
+          onCancel={handleCancel}
+          open={isModalOpen}
+          footer={false}
+        >
+          {token ? (
+            <Col span={24}>
+              <div
+                className="wallet-right-side"
+                style={{ boxShadow: "none", padding: "0px", marginTop: "20px" }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className="trading-yeschart">
+                    <button
+                      onClick={() => setBuyOrSell("buy")}
+                      className={
+                        buyOrSell == "buy" ? "yes activeButton" : "yes"
+                      }
+                    >
+                      Buy
+                    </button>
+                    <button
+                      onClick={() => setBuyOrSell("sell")}
+                      className={
+                        buyOrSell == "sell" ? "yes activeButton" : "yes"
+                      }
+                    >
+                      Sell
+                    </button>
+                  </div>
+                  <span>Market</span>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginTop: "10px",
+                  }}
+                >
+                  <p>Outcome</p>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      onClick={() => setOutcomeBtn("yes")}
+                      className={
+                        outcomeBtn == "yes"
+                          ? "outcome-yes active-outcome-yes"
+                          : "outcome-yes"
+                      }
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => setOutcomeBtn("no")}
+                      className={
+                        outcomeBtn == "no"
+                          ? "outcome-yes active-outcome-no"
+                          : "outcome-yes"
+                      }
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+                <p className="credits">
+                  Credits to be added (<b> ₦ </b>)
+                </p>
+
+                <Form layout="vertical" form={form}>
+                  {buyOrSell == "buy" ? (
+                    <>
+                      <Form.Item
+                        name="amout"
+                        label="Amount"
+                        rules={[
+                          {
+                            required: true,
+                            message: "please enter your amount",
+                          },
+                        ]}
+                      >
+                        <Input
+                          onChange={(e) => setDoller(e.target.value)}
+                          min={0}
+                          className="ant-input-affix-wrapper"
+                          type="number"
+                          placeholder="Enter Amout ₦"
+                        />
+                      </Form.Item>
+                      <div>
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          Available Balance : {userDetails?.amount}
+                        </p>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          Average Price
+                        </p>
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {outcomeBtn == "yes" &&
+                            chartData[chartData?.length - 1]?.bidamount}
+                          {outcomeBtn == "no" &&
+                            noBids[noBids?.length - 1]?.bidamount}
+                        </p>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          Est. Shares
+                        </p>
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {selectedtradingShare?.share || "0"}
+                        </p>
+                      </div>
+                      {/* <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          Potential Returns
+                        </p>
+                        <p
+                          style={{
+                            margin: "0px",
+                            color: "gray",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {doller * 1.16 || "0.00"}
+                          <b style={{ color: "#0092DA" }}>(ROI : 1.16 X)</b>
+                        </p>
+                      </div> */}
+
+                      <div className="text-area">
+                        <p className="dec">Trading Fee: 10% of profit</p>
+                      </div>
+
+                      {userDetails?.amount < doller ? (
+                        <div className="proceed">
+                          {token ? (
+                            <button
+                              onClick={() => {
+                                message.warning("Please Recharge your account");
+                                navigate("/wallet");
+                              }}
+                              className={
+                                (outcomeBtn == "yes" && "active-outcome-yes") ||
+                                (outcomeBtn == "no" && "active-outcome-no  ")
+                              }
+                            >
+                              Add {doller - userDetails?.amount}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => navigate("/login")}
+                              className={
+                                (outcomeBtn == "yes" && "active-outcome-yes") ||
+                                (outcomeBtn == "no" && "active-outcome-no  ")
+                              }
+                            >
+                              Sign up to Ochuba
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="proceed">
+                          {token ? (
+                            <button
+                              disabled={!doller}
+                              onClick={() => formHandler()}
+                              className={
+                                (outcomeBtn == "yes" && "active-outcome-yes") ||
+                                (outcomeBtn == "no" && "active-outcome-no  ")
+                              }
+                            >
+                              Proceed
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => navigate("/login")}
+                              className={
+                                (outcomeBtn == "yes" && "active-outcome-yes") ||
+                                (outcomeBtn == "no" && "active-outcome-no  ")
+                              }
+                            >
+                              Sign up to Ochuba
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
                       {
-                        required: true,
-                        message: "please enter your share",
-                      },
-                    ]}
-                  >
-                    <Input
-                      onChange={(e) => setsellAmount(e.target.value)}
-                      min={0}
-                      className="ant-input-affix-wrapper"
-                      type="number"
-                      placeholder="Enter share"
-                    />
-                  </Form.Item>
+                        <>
+                          <Form.Item
+                            name="amout"
+                            label="Shares"
+                            rules={[
+                              {
+                                required: true,
+                                message: "please enter your share",
+                              },
+                            ]}
+                          >
+                            <Input
+                              onChange={(e) => setsellAmount(e.target.value)}
+                              min={0}
+                              className="ant-input-affix-wrapper"
+                              type="number"
+                              placeholder="Enter share"
+                            />
+                          </Form.Item>
 
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      Available Shares
-                    </p>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      {selectedtradingShare?.share || "0"}
-                    </p>
-                  </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      Average Price
-                    </p>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      {outcomeBtn == "yes" &&
-                        chartData[chartData?.length - 1]?.bidamount}
-                      {outcomeBtn == "no" &&
-                        noBids[noBids?.length - 1]?.bidamount}
-                    </p>
-                  </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      Potential Returns
-                    </p>
-                    <p
-                      style={{ margin: "0px", color: "gray", fontSize: "14px" }}
-                    >
-                      {outcomeBtn == "yes" &&
-                        chartData[chartData?.length - 1]?.bidamount *
-                          sellAmount}
-                      {outcomeBtn == "no" &&
-                        noBids[noBids?.length - 1]?.bidamount * sellAmount}
-                    </p>
-                  </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <p
+                              style={{
+                                margin: "0px",
+                                color: "gray",
+                                fontSize: "14px",
+                              }}
+                            >
+                              Available Shares
+                            </p>
+                            <p
+                              style={{
+                                margin: "0px",
+                                color: "gray",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {selectedtradingShare?.share || "0"}
+                            </p>
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <p
+                              style={{
+                                margin: "0px",
+                                color: "gray",
+                                fontSize: "14px",
+                              }}
+                            >
+                              Shares Price
+                            </p>
+                            <p
+                              style={{
+                                margin: "0px",
+                                color: "gray",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {outcomeBtn == "yes" &&
+                                chartData[chartData?.length - 1]?.bidamount}
+                              {outcomeBtn == "no" &&
+                                noBids[noBids?.length - 1]?.bidamount}
+                            </p>
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <p
+                              style={{
+                                margin: "0px",
+                                color: "gray",
+                                fontSize: "14px",
+                              }}
+                            >
+                              Potential Returns
+                            </p>
+                            <p
+                              style={{
+                                margin: "0px",
+                                color: "gray",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {outcomeBtn == "yes" &&
+                                chartData[chartData?.length - 1]?.bidamount *
+                                  sellAmount}
+                              {outcomeBtn == "no" &&
+                                noBids[noBids?.length - 1]?.bidamount *
+                                  sellAmount}
+                            </p>
+                          </div>
 
-                  <div className="text-area">
-                    <p className="dec">Trading Fee: 10% of profit</p>
-                  </div>
+                          <div className="text-area">
+                            <p className="dec">Trading Fee: 10% of profit</p>
+                          </div>
 
-                  <div className="proceed">
-                    {token ? (
-                      <button
-                        disabled={!sellAmount}
-                        onClick={() => formSellHandler()}
-                        className={
-                          (outcomeBtn == "yes" && "active-outcome-yes") ||
-                          (outcomeBtn == "no" && "active-outcome-no  ")
-                        }
-                      >
-                        Proceed
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => navigate("/login")}
-                        className={
-                          (outcomeBtn == "yes" && "active-outcome-yes") ||
-                          (outcomeBtn == "no" && "active-outcome-no  ")
-                        }
-                      >
-                        Sign up to Ochuba
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-            </Form>
-          </div>
-        </Col>
+                          <div className="proceed">
+                            {token ? (
+                              <button
+                                disabled={!sellAmount}
+                                onClick={() => formSellHandler()}
+                                className={
+                                  (outcomeBtn == "yes" &&
+                                    "active-outcome-yes") ||
+                                  (outcomeBtn == "no" && "active-outcome-no  ")
+                                }
+                              >
+                                Proceed
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => navigate("/login")}
+                                className={
+                                  (outcomeBtn == "yes" &&
+                                    "active-outcome-yes") ||
+                                  (outcomeBtn == "no" && "active-outcome-no  ")
+                                }
+                              >
+                                Sign up to Ochuba
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      }
+                    </>
+                  )}
+                </Form>
+              </div>
+            </Col>
+          ) : (
+            <Col span={24}>
+              <div
+                className="wallet-right-side"
+                style={{ boxShadow: "none", padding: "0px", marginTop: "20px" }}
+              >
+                <h2>How it works</h2>
+                <h3>Predict Outcomes. Buy Yes or No</h3>
+                <p>Buy Yes if you think the event will happen & No if you don’t. Please note that news triggers price changes in the market</p>
+                <h3>Sell Early to book profits</h3>
+                <p>Buy & Sell positions as events become more or less likely over time.</p>
+                <h3>Collect Profits on Event Settlement</h3>
+                <p>When the outcome of the event becomes clear, the event settles and you earn 100 to 1000 Naira for every correct share you own.</p>
+                <div className="proceed">
+                  <button
+                    onClick={() => navigate("/login")}
+                    className={
+                      (outcomeBtn == "yes" && "active-outcome-yes") ||
+                      (outcomeBtn == "no" && "active-outcome-no  ")
+                    }
+                  >
+                    Sign up to Ochuba
+                  </button>
+                </div>
+              </div>
+            </Col>
+          )}
+        </Modal>
       </Row>
     </Spin>
   );

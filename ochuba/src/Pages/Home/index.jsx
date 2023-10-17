@@ -81,7 +81,7 @@ const Home = () => {
     );
     setData(filter);
     const uniqueArray = filter.filter((item, index, self) => {
-      return index === self.findIndex((t) => t.category === item.category);
+      return index === self.findIndex((t) => t.category?.toLowerCase()?.trim() === item.category?.toLowerCase()?.trim());
     });
     setCategory(uniqueArray);
   };
@@ -131,7 +131,7 @@ const Home = () => {
     if (allData?.length) {
       const filtercategory = allData?.filter((item) => item?.type == "sports");
       const uniqueArray = filtercategory.filter((item, index, self) => {
-        return index === self.findIndex((t) => t.category === item.category);
+        return index === self.findIndex((t) => t.category?.toLowerCase()?.trim() === item.category?.toLowerCase()?.trim());
       });
       setCategory(uniqueArray);
     }
@@ -185,11 +185,7 @@ const Home = () => {
     },
   ];
 
-  console.log(
-    data[0]?.bids?.filter((item) => item?.bid == "no")[
-      data[0]?.bids?.filter((item) => item?.bid == "no")?.length - 1
-    ]?.oldamount,"rizwannnnnnnnnnnnnnnnnnn"
-  );
+ 
 
   return (
     <Spin spinning={loading}>
