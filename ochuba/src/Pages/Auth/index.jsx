@@ -52,8 +52,8 @@ const Login = () => {
       });
       const confirmation = await signInWithPhoneNumber(
         auth,
-        // `+92${e.phone_number}`,
-        `+234${e.phone_number}`,
+        `+92${e.phone_number}`,
+        // `+234${e.phone_number}`,
         verifier
       );
       setConfirmationResult(confirmation);
