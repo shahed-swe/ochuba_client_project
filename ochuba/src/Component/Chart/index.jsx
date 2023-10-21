@@ -23,7 +23,6 @@ const TradingScreen = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedtradingShare, setSelectedtradingShare] = useState([]);
 
-
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
   const navigate = useNavigate();
@@ -125,12 +124,11 @@ const TradingScreen = () => {
         // setSelectedtradingShare(userDetails?.length ? userDetails?.bids?.filter((item)=> item))
         setNoBids(userData?.data?.bids?.filter((item) => item?.bid == "no"));
         for (let i = 0; i < userData?.data?.bids?.length; i++) {
-          if(userData?.data?.bids[i]?.bid == "yes"){
+          if (userData?.data?.bids[i]?.bid == "yes") {
             setTotalAmountYes(
               (pre) => pre + parseInt(userData?.data?.bids[i]?.bidamount)
             );
-          }
-          else{
+          } else {
             setTotalAmountNo(
               (pre) => pre + parseInt(userData?.data?.bids[i]?.bidamount)
             );
@@ -302,7 +300,7 @@ const TradingScreen = () => {
                 <p>Total Amount No</p>
                 <p>{totalAmountNo || 0}</p>
               </div>
-             
+
               <div
                 style={{
                   display: "flex",
@@ -311,9 +309,7 @@ const TradingScreen = () => {
                 }}
               >
                 <p style={{ marginTop: "0px" }}>Number of Yes Bids</p>
-                <p style={{ marginTop: "0px" }}>
-                  {chartData?.length || "0"}
-                </p>
+                <p style={{ marginTop: "0px" }}>{chartData?.length || "0"}</p>
               </div>
               <div
                 style={{
@@ -323,9 +319,7 @@ const TradingScreen = () => {
                 }}
               >
                 <p style={{ marginTop: "0px" }}>Number of No Bids</p>
-                <p style={{ marginTop: "0px" }}>
-                  {noBids?.length || "0"}
-                </p>
+                <p style={{ marginTop: "0px" }}>{noBids?.length || "0"}</p>
               </div>
               <div
                 style={{
@@ -517,7 +511,7 @@ const TradingScreen = () => {
                         {selectedtradingShare?.share || "0"}
                       </p>
                     </div>
-                    {/* <div
+                    <div
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
@@ -539,10 +533,12 @@ const TradingScreen = () => {
                           fontSize: "14px",
                         }}
                       >
-                        {doller * 1.16 || "0.00"}
-                        <b style={{ color: "#0092DA" }}>(ROI : 1.16 X)</b>
+                        {outcomeBtn == "yes" &&
+                          chartData[chartData?.length - 1]?.bidamount * selectedtradingShare?.share || "0" }
+                        {outcomeBtn == "no" &&
+                          noBids[noBids?.length - 1]?.bidamount * selectedtradingShare?.share || "0"}
                       </p>
-                    </div> */}
+                    </div>
 
                     <div className="text-area">
                       <p className="dec">Trading Fee: 10% of profit</p>
@@ -1140,11 +1136,21 @@ const TradingScreen = () => {
               >
                 <h2>How it works</h2>
                 <h3>Predict Outcomes. Buy Yes or No</h3>
-                <p>Buy Yes if you think the event will happen & No if you don’t. Please note that news triggers price changes in the market</p>
+                <p>
+                  Buy Yes if you think the event will happen & No if you don’t.
+                  Please note that news triggers price changes in the market
+                </p>
                 <h3>Sell Early to book profits</h3>
-                <p>Buy & Sell positions as events become more or less likely over time.</p>
+                <p>
+                  Buy & Sell positions as events become more or less likely over
+                  time.
+                </p>
                 <h3>Collect Profits on Event Settlement</h3>
-                <p>When the outcome of the event becomes clear, the event settles and you earn 100 to 1000 Naira for every correct share you own.</p>
+                <p>
+                  When the outcome of the event becomes clear, the event settles
+                  and you earn 100 to 1000 Naira for every correct share you
+                  own.
+                </p>
                 <div className="proceed">
                   <button
                     onClick={() => navigate("/login")}

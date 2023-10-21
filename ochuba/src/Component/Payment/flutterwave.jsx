@@ -17,6 +17,7 @@ const Flutterwave = ({ Amount, setIsPayment }) => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const token = useSelector((state) => state?.authReducer?.token);
   const user = useSelector((state) => state?.authReducer?.user);
+  const completeUser = useSelector((state) => state?.gernalReducer?.completeUser);
 
   const handleCardNumberChange = (event) => {
     const input = event.target.value.replace(/\D/g, ""); // Remove non-numeric characters
@@ -52,6 +53,7 @@ const Flutterwave = ({ Amount, setIsPayment }) => {
   };
 
   const formHandler = async () => {
+    console.log(user,"user?.emailuser?.email")
     const formData = {
       card_number: cardNumber.replace(/\s/g, ""),
       cvv: cvc,
@@ -61,7 +63,7 @@ const Flutterwave = ({ Amount, setIsPayment }) => {
     };
     if ((cardNumber, cvc, expiryDate, Amount)) {
       console.log("chalya a ka ni")
-      if (user?.email) {
+      if (completeUser?.email) {
         setLoading(true);
 
         fetch(`${baseUrl}/api/v1/admin/trading/payment`, {

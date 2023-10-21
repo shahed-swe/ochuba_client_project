@@ -62,7 +62,7 @@ const Login = () => {
       // SMS sent successfully, handle UI or further actions
     } catch (error) {
       console.error("Error sending SMS:", error);
-      setLoading(false);a
+      setLoading(false);
     }
   };
 

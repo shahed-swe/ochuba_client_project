@@ -23,7 +23,7 @@ const RenderLineChart = ({chartData,type}) => {
       <LabelList  position="left" /> {/* Display labels on the left side */}
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
       <XAxis  hide={true} />
-      <YAxis ticks={[0, 100, 200, 300, 400, 500,600,700,800,900,1000]} />
+      <YAxis ticks={[200, 400, 600, 800, 1000]} />
       <Tooltip />
     </LineChart>
   </ResponsiveContainer>
