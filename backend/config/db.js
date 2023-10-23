@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const mongoURI = 'mongodb+srv://shahed:srsas1234DFIN@cluster0.vnbi6.mongodb.net/ochuba?retryWrites=true&w=majority';
+const mongoURI = 'mongodb://127.0.0.1:27017/ochuba';
 
 const connectToMongo = () => {
     mongoose.connect(mongoURI)

@@ -40,28 +40,49 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [code, setCode] = useState("");
   const [confirmationResult, setConfirmationResult] = useState(null);
-  console.log(confirmationResult?.verificationId,"confirmationResult")
+  // console.log(confirmationResult?.verificationId,"confirmationResult")
   const auth = getAuth(app);
-
+  let verifier;
   const handleSendCode = async (e) => {
+    
     try {
       setLoading(true);
-      setPhoneNumber(e?.phone_number);
-      const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible",
-      });
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        `+92${e.phone_number}`,
-        // `+234${e.phone_number}`,
-        verifier
-      );
-      setConfirmationResult(confirmation);
+      // let phone  = `${e.nativeEvent.target[1].value}${e.nativeEvent.target[2].value}`
+      if(verifier == undefined){
+
+        verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+          size: "invisible",
+        });
+      }
+
+
+      let phone  = `+234${phoneNumber}`
+      // console.log(phone)
+      // console.log("verifier",verifier)
+
+      signInWithPhoneNumber(auth, phone, verifier)
+    .then((confirmationResult) => {
+
+      console.log("confirmation result",confirmationResult)
+      setConfirmationResult(confirmationResult);
       message.success("OTP send successfully please check your inbox");
       setLoading(false);
       // SMS sent successfully, handle UI or further actions
-    } catch (error) {
+      // ...
+    }).catch((error) => {
       console.error("Error sending SMS:", error);
+      setLoading(false);
+    });
+
+      // const confirmation = await signInWithPhoneNumber(
+      //   auth,
+      //   `${phone}`,
+      //   // `+234${e.phone_number}`,
+      //   verifier
+      // );
+      
+    } catch (error) {
+      console.error("Error:", error);
       setLoading(false);
     }
   };
@@ -148,7 +169,7 @@ const Login = () => {
         <div className="auth-box">
           <div className="auth-fields">
             <Spin spinning={loading}>
-              <Form form={form} onFinish={handleSendCode} layout="vertical">
+              <Form form={form} layout="vertical">
                 {signUp == "login" && (
                   <Row gutter={20}>
                     <div id="recaptcha-container"></div>
@@ -179,6 +200,8 @@ const Login = () => {
                           type="number"
                           className="ant-input-affix-wrapper"
                           placeholder="1 XXX XXXX"
+                          onChange={(e)=> setPhoneNumber(e.target.value)}
+
                         />
                       </Form.Item>
                     </Col>
@@ -208,7 +231,7 @@ const Login = () => {
                       </Form.Item>
                     </Col>
                     <Col span={24}>
-                      <button disabled={confirmationResult?.verificationId} type="submit" style={{ width: "100%" }}>
+                      <button disabled={confirmationResult?.verificationId} type="button" onClick={()=>handleSendCode()} style={{ width: "100%" }}>
                         Get OTP via SMS
                       </button>
                     </Col>
