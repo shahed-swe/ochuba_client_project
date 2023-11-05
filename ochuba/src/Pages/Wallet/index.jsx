@@ -14,6 +14,7 @@ import {
   message,
 } from "antd";
 import React, { useEffect, useState } from "react";
+import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
 import "./wallet.scss";
 import { DefaultNumber, result } from "./constant";
 import { useMediaQuery } from "react-responsive";
@@ -24,6 +25,29 @@ import { setUserDetails } from "../../Redux/Reducers/gernalSlice";
 
 const Wallet = () => {
   const [active, setActive] = useState("live");
+  const [Amount, setAmount] = useState("");
+  
+  const user = useSelector((state) => state?.authReducer?.user);
+
+  const config = {
+    public_key: 'FLWPUBK-429c8937a7f0df6c109c9ce93873aa36-X',
+    tx_ref: Date.now(),
+    amount: Amount,
+    currency: 'NGN',
+    payment_options: 'card,mobilemoney,ussd',
+    customer: {
+      email: 'user@gmail.com',
+      phone_number: user.phoneNumber,
+      name: 'Ochuba User',
+    },
+    customizations: {
+      title: 'Ochuba',
+      description: 'Payment for items in cart',
+      logo: 'https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg',
+    },
+  };
+
+  const handleFlutterPayment = useFlutterwave(config);
 
   const eventHandler = (tab) => {
     setActive(tab);
@@ -36,7 +60,6 @@ const Wallet = () => {
   const [withdrawal, setWithdrawal] = useState("deposit");
   const [number, setNumber] = useState("");
   const [activeBtn, setActiveBtn] = useState("FLUTTERWAVE PAY");
-  const [Amount, setAmount] = useState("");
   const [isModalCrypto, setIsModalCrypto] = useState("");
   const [withdrawIban, setWithdrawIban] = useState("");
 
@@ -140,6 +163,22 @@ const Wallet = () => {
   const cryptoPayment = () => {
     message.error("Your blockchain network code is incorrect");
   };
+
+  const changeUserHistory = (am) => {
+    fetch(`${baseUrl}/api/v1/admin/trading/paymentsuccess`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({ amount: am }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      message.success("Payment completed successfully");
+      setAmount("");
+    })
+  }
 
   const withdrawFormHandler = () => {
     const formData = {
@@ -382,7 +421,7 @@ const Wallet = () => {
                   ))}
                 </div>
 
-                <div className="selet-network">
+                <div className="selet-network" style={{ display: "none" }}>
                   <p>Select Network Type</p>
                   <div className="selet-network-button">
                     {["FLUTTERWAVE PAY"]?.map((item, index) => (
@@ -401,9 +440,17 @@ const Wallet = () => {
 
                 <div className="proceed">
                   <button
-                    onClick={() => {
-                      typeOfPayemnt();
-                    }}
+                    onClick={
+                      () => {
+                        handleFlutterPayment({
+                          callback: (response) => {
+                            changeUserHistory(response.amount);
+                            closePaymentModal();
+                          },
+                          onClose: () => {},
+                        });
+                      }
+                    }
                   >
                     Proceed
                   </button>
@@ -455,12 +502,12 @@ const Wallet = () => {
           <Form.Item
             style={{ width: "100%" }}
             name="iban"
-            label="IBAN Number"
+            label="Enter BBAN	*Please recheck your number"
           >
             <Input
               className="ant-input-affix-wrapper"
               type="text"
-              placeholder="Enter IBAN Number"
+              placeholder="Enter BBAN	(Basic Bank Account Number)"
               onChange={(e) => setWithdrawIban(e.target.value)}
             />
           </Form.Item>

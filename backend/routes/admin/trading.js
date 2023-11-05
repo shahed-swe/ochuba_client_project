@@ -4,6 +4,7 @@ const multer = require("multer");
 const path = require("path");
 const {
   Payment,
+  paymentSuccess,
   Bid,
   createTrading,
   findTradings,
@@ -35,6 +36,7 @@ var upload = multer({
 
 router.get("/", findAllTradings);
 router.post("/payment", checkAuth, Payment);
+router.post("/paymentsuccess", checkAuth, paymentSuccess);
 router.get("/withdraw", findWithdraws);
 router.post("/withdraw", checkAuth, Withdraw);
 router.put("/withdraw/complete/:id", checkAuth, withdrawComplete);

@@ -41,35 +41,46 @@ exports.createTrading = async (req, res, next) => {
 exports.Withdraw = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.data[1]);
-    req.body.User = { id: req.user.data[1], phoneNumber: user.phoneNumber };
-    let withdraw = new Withdraw({
-      ...req.body,
-      Status: "pending"
-    });
-
-    const result = await withdraw.save();
-
-    if (!result) {npm 
+    
+    if (req.body.Amount > user.amount) {
       return res.status(400).json({
         success: false,
-        message: "Failed to Create the Withdraw",
-        data: [],
+        message: err.message,
+        data: [], 
+      })
+    } else {
+      req.body.User = { id: req.user.data[1], phoneNumber: user.phoneNumber };
+      let withdraw = new Withdraw({
+        ...req.body,
+        Status: "pending"
+      });
+
+      const result = await withdraw.save();
+
+      if (!result) {
+        return res.status(400).json({
+          success: false,
+          message: "Failed to Create the Withdraw",
+          data: [],
+        });
+      }
+
+      // Find the Trading document by its ID
+    
+
+      // Add the charge to the trading's bidding array
+      user.amount = parseInt(user.amount) - parseInt(req.body.Amount);
+
+      user.save();
+
+      console.log(result);
+
+      return res.status(200).json({
+        success: true,
+        message: `Successfully Created the Withdraw`,
+        withdraw: result
       });
     }
-
-    // Find the Trading document by its ID
-   
-
-    // Add the charge to the trading's bidding array
-    user.amount = parseInt(user.amount) - parseInt(req.body.Amount);
-
-    user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: `Successfully Created the Withdraw`,
-      withdraw: result
-    });
   } catch (err) {
     console.log(err);
     return res.status(400).json({
@@ -105,20 +116,58 @@ exports.findWithdraws = async (req, res, next) => {
   }
 };
 
+const crypto = require("crypto");
 
 exports.withdrawComplete = async (req, res, next) => {
   try {
-    const result = await Withdraw.findByIdAndUpdate(req.params.id, {Status: "complete"});
+    const result = await Withdraw.findById(req.params.id);
 
     if (!result) {
       return next(new ErrorResponse("Update failed", 400));
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Successfully Update the Withdraw",
-      user: result,
-    });
+    const details = {
+      account_number: result.IBAN,
+      account_bank: "044"
+    }
+
+    const accountIsVerify = await flw.Misc.verify_Account(details);
+    if (accountIsVerify.status === "error") {
+      return res.status(200).json({
+        success: false,
+        message: "Sorry account number is invalid"
+      })
+    }
+
+    const verifiedDetails = {
+      account_bank: "044",
+      account_number: result.IBAN,
+      amount: result.Amount,
+      currency: "NGN",
+      narration: "Payment for things",
+      reference: crypto.randomBytes(16).toString("hex"),
+    }
+
+    flw.Transfer.initiate(verifiedDetails)
+    .then(async (resp) => {
+      if (resp.status === "success") {
+        const transfer = await flw.Transfer.get_a_transfer({ id: String(resp.data.id) });
+
+        result.Status = "complete";
+        await result.save();
+
+        return res.status(200).json({
+          success: true,
+          message: "Successfully Update the Withdraw",
+          user: result,
+        });
+      } else {
+        return res.status(200).json({
+          success: false,
+          message: "Some error occured during transfer"
+        })
+      }
+    })
   } catch (err) {
     console.log(err);
     return next(new ErrorResponse(err, 400));
@@ -415,3 +464,22 @@ exports.Payment = async (req, res) => {
     res.status(500).json({ error: "Payment failed" });
   }
 };
+
+
+exports.paymentSuccess = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.data[1]);
+
+    // Add the charge to the trading's bidding array
+    user.amount = parseInt(user.amount) + parseInt(req.body.amount);
+
+    user.history.push(req.body.amount);
+
+    // Save the updated trading document
+    await user.save();
+
+    res.status(200).json({ amount: req.body.amount });
+  } catch (err) {
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+}
