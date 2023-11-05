@@ -22,12 +22,19 @@ import { image1, image2, image3, image4, image5 } from "../../assets";
 import Flutterwave from "../../Component/Payment/flutterwave";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "../../Redux/Reducers/gernalSlice";
+import { useNavigate } from "react-router-dom";
 
 const Wallet = () => {
   const [active, setActive] = useState("live");
   const [Amount, setAmount] = useState("");
+  const navigate = useNavigate();
   
   const user = useSelector((state) => state?.authReducer?.user);
+  const userDetails = useSelector(
+    (state) => state?.gernalReducer?.completeUser
+  );
+
+  console.log(user, userDetails);
 
   const config = {
     public_key: 'FLWPUBK-429c8937a7f0df6c109c9ce93873aa36-X',
@@ -36,7 +43,7 @@ const Wallet = () => {
     currency: 'NGN',
     payment_options: 'card,mobilemoney,ussd',
     customer: {
-      email: 'user@gmail.com',
+      email: user.email,
       phone_number: user.phoneNumber,
       name: 'Ochuba User',
     },
@@ -65,10 +72,6 @@ const Wallet = () => {
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
-
-  const userDetails = useSelector(
-    (state) => state?.gernalReducer?.completeUser
-  );
   const [open, setOpen] = useState(false);
 
   const token = useSelector((state) => state?.authReducer?.token);
@@ -442,13 +445,21 @@ const Wallet = () => {
                   <button
                     onClick={
                       () => {
-                        handleFlutterPayment({
-                          callback: (response) => {
-                            changeUserHistory(response.amount);
-                            closePaymentModal();
-                          },
-                          onClose: () => {},
-                        });
+                        if (user.email === "" || userDetails.email === "") {
+                          message.error("Please enter email address in your profile");
+                          navigate("/profile");
+
+                          return;
+                        } else {
+                          handleFlutterPayment({
+                            callback: (response) => {
+                              
+                              changeUserHistory(response.amount);
+                              closePaymentModal();
+                            },
+                            onClose: () => {},
+                          });
+                        }
                       }
                     }
                   >
