@@ -4,10 +4,17 @@ const withdrawSchema = new mongoose.Schema({
   Amount: {
     type: String,
     default: "",
+    required: [true, "Please enter Amount"],
   },
-  IBAN: {
+  BBAN: {
     type: String,
     default: "",
+    required: [true, "Please enter Bank Account Number"],
+  },
+  BSB: {
+    type: String,
+    default: "",
+    required: [true, "Please enter Bank Code"],
   },
   Status: {
     type: String,

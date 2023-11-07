@@ -10,8 +10,8 @@ const DashboardTable = ({ mobileResponsive, data, CompleteEvents}: any) => {
   const columns = [
     {
       key: "1",
-      title: "IBAN",
-      render: (_: any, object: any) => object?.IBAN || "-",
+      title: "BBAN",
+      render: (_: any, object: any) => object?.BBAN || "-",
       width: "22%",
     },
     {

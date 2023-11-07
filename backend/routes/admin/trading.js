@@ -15,7 +15,8 @@ const {
   Sell,
   Withdraw,
   findWithdraws,
-  withdrawComplete
+  withdrawComplete,
+  getBankCodes
 } = require("../../controllers/trading.controllers");
 const checkAuth = require("../../middleware/check-auth");
 
@@ -36,6 +37,7 @@ var upload = multer({
 
 router.get("/", findAllTradings);
 router.post("/payment", checkAuth, Payment);
+router.get("/bankcodes", getBankCodes);
 router.post("/paymentsuccess", checkAuth, paymentSuccess);
 router.get("/withdraw", findWithdraws);
 router.post("/withdraw", checkAuth, Withdraw);

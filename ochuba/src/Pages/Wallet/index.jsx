@@ -10,6 +10,7 @@ import {
   Modal,
   Row,
   Select,
+  Space,
   Spin,
   message,
 } from "antd";
@@ -27,14 +28,14 @@ import { useNavigate } from "react-router-dom";
 const Wallet = () => {
   const [active, setActive] = useState("live");
   const [Amount, setAmount] = useState("");
+  const [banksDetails, setBanksDetails] = useState([]);
+  const [banksLabel, setBanksLabel] = useState([]);
   const navigate = useNavigate();
   
   const user = useSelector((state) => state?.authReducer?.user);
   const userDetails = useSelector(
     (state) => state?.gernalReducer?.completeUser
   );
-
-  console.log(user, userDetails);
 
   const config = {
     public_key: 'FLWPUBK-429c8937a7f0df6c109c9ce93873aa36-X',
@@ -68,7 +69,9 @@ const Wallet = () => {
   const [number, setNumber] = useState("");
   const [activeBtn, setActiveBtn] = useState("FLUTTERWAVE PAY");
   const [isModalCrypto, setIsModalCrypto] = useState("");
-  const [withdrawIban, setWithdrawIban] = useState("");
+
+  const [withDrawBBAN, setWithDrawBBAN] = useState("");
+  const [withDrawBSB, setWithDrawBSB] = useState("");
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -78,15 +81,13 @@ const Wallet = () => {
 
   const dispatch = useDispatch()
 
-
-
-
-
   const onClose = () => {
     setOpen(false);
   };
 
   const showModalwithdraw = () => {
+    console.log(banksDetails);
+
     if (Amount) {
       setIsModalOpenWithdraw(true);
     } else {
@@ -120,6 +121,20 @@ const Wallet = () => {
     }
   };
 
+  const fetchBankCodes = () => {
+    fetch(`${baseUrl}/api/v1/admin/trading/bankcodes`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      const resp = data.data;
+      setBanksDetails(resp);
+    })
+  }
+
   const handleOkPayment = () => {
     setIsModalOpen(false);
     form.resetFields();
@@ -141,7 +156,25 @@ const Wallet = () => {
     form?.setFieldsValue({
       amout: number,
     });
+
   }, [number]);
+
+  useEffect(() => {
+    if (banksDetails.length !== 0) { 
+      let arr = []; 
+      
+      banksDetails.forEach((e) => {
+        let obj = {
+          value: e.code,
+          label: e.name
+        }
+        arr.push(obj);
+        setBanksLabel(arr);
+      })
+    } else {
+      fetchBankCodes();
+    }
+  }, banksDetails);
 
   const mobileResponsive = useMediaQuery({
     query: "(max-width: 900px)",
@@ -185,7 +218,8 @@ const Wallet = () => {
 
   const withdrawFormHandler = () => {
     const formData = {
-      IBAN: withdrawIban,
+      BBAN: withDrawBBAN,
+      BSB: withDrawBSB,
       Amount: Amount,
     };
     if (Amount && Amount <= userDetails?.amount ) {
@@ -220,11 +254,12 @@ const Wallet = () => {
               .catch((error) => {
                 setLoading(false);
               });
+          } else {
+            message.error(data.message);
           }
         })
         .catch((error) => {
           setLoading(false);
-          message.error("Something went wrong")
         });
     }
     else{
@@ -388,13 +423,11 @@ const Wallet = () => {
               </button>
             </div>
             <p className="credits">
-              Credits to be added (<b> ₦ </b>)
+              {withdrawal === "deposit" ? "Credits to be added" : "Amount to withdraw"} (<b> ₦ </b>)
             </p>
             <Form form={form}>
               <Form.Item name="amout">
                 <Input
-                  min={0}
-                  max={1000}
                   className="ant-input-affix-wrapper"
                   type="number"
                   placeholder="Enter Amout ₦"
@@ -445,6 +478,11 @@ const Wallet = () => {
                   <button
                     onClick={
                       () => {
+                        if (Amount < 2000) {
+                          message.error("Amount must be atleast 2000 ₦");
+                          return;
+                        }
+
                         if (user.email === "" || userDetails.email === "") {
                           message.error("Please enter email address in your profile");
                           navigate("/profile");
@@ -473,7 +511,7 @@ const Wallet = () => {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <p style={{ margin: "0px", color: "gray", fontSize: "14px" }}>
-                    Average Price
+                    Available balance
                   </p>
                   <p style={{ margin: "0px", color: "gray", fontSize: "14px" }}>
                     {userDetails?.amount || "0"}
@@ -512,16 +550,32 @@ const Wallet = () => {
         >
           <Form.Item
             style={{ width: "100%" }}
-            name="iban"
-            label="Enter BBAN	*Please recheck your number"
+            name="bban"
+            label="Enter your Bank Account Number"
           >
             <Input
               className="ant-input-affix-wrapper"
               type="text"
-              placeholder="Enter BBAN	(Basic Bank Account Number)"
-              onChange={(e) => setWithdrawIban(e.target.value)}
+              placeholder="Basic Bank Account Number"
+              value={withDrawBBAN}
+              onChange={(e) => setWithDrawBBAN(e.target.value)}
             />
           </Form.Item>
+
+          <Form.Item
+            style={{ width: "100%" }}
+            name="bsb"
+            label="Select your Bank"
+          >
+            <Select
+              style={{
+                width: "100%",
+              }}
+              onChange={(e) => setWithDrawBSB(String(e))}
+              options={banksLabel}
+            />
+          </Form.Item>
+          
           <button
             style={{
               width: "100px",

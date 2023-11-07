@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Flutterwave = require("flutterwave-node-v3");
 const flw = new Flutterwave(process.env.PUBLIC_KEY, process.env.SECRET_KEY);
 const ErrorResponse = require("../utils/errorResponse");
+var request = require('request');
 
 exports.createTrading = async (req, res, next) => {
   try {
@@ -41,11 +42,11 @@ exports.createTrading = async (req, res, next) => {
 exports.Withdraw = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.data[1]);
-    
-    if (req.body.Amount > user.amount) {
+
+    if (req.body.Amount > user.profit || req.body.Amount < 100) {
       return res.status(400).json({
         success: false,
-        message: err.message,
+        message: "Amount can neither be more than earning amount nor be less than 100",
         data: [], 
       })
     } else {
@@ -65,15 +66,25 @@ exports.Withdraw = async (req, res, next) => {
         });
       }
 
-      // Find the Trading document by its ID
-    
+      const details = {
+        account_number: result.BBAN,
+        account_bank: result.BSB
+      }
+  
+      const accountIsVerify = await flw.Misc.verify_Account(details);
+      if (accountIsVerify.status === "error") {
+        await result.deleteOne();
 
-      // Add the charge to the trading's bidding array
+        return res.status(200).json({
+          success: false,
+          message: "Sorry account number is invalid"
+        })
+      }
+
       user.amount = parseInt(user.amount) - parseInt(req.body.Amount);
+      user.profit = parseInt(user.profit) - parseInt(req.body.Amount);
 
       user.save();
-
-      console.log(result);
 
       return res.status(200).json({
         success: true,
@@ -117,6 +128,7 @@ exports.findWithdraws = async (req, res, next) => {
 };
 
 const crypto = require("crypto");
+const { log } = require("console");
 
 exports.withdrawComplete = async (req, res, next) => {
   try {
@@ -126,22 +138,9 @@ exports.withdrawComplete = async (req, res, next) => {
       return next(new ErrorResponse("Update failed", 400));
     }
 
-    const details = {
-      account_number: result.IBAN,
-      account_bank: "044"
-    }
-
-    const accountIsVerify = await flw.Misc.verify_Account(details);
-    if (accountIsVerify.status === "error") {
-      return res.status(200).json({
-        success: false,
-        message: "Sorry account number is invalid"
-      })
-    }
-
     const verifiedDetails = {
-      account_bank: "044",
-      account_number: result.IBAN,
+      account_bank: result.BSB,
+      account_number: result.BBAN,
       amount: result.Amount,
       currency: "NGN",
       narration: "Payment for things",
@@ -481,5 +480,31 @@ exports.paymentSuccess = async (req, res) => {
     res.status(200).json({ amount: req.body.amount });
   } catch (err) {
     res.status(500).json({ error: "Something went wrong!" });
+  }
+}
+
+exports.getBankCodes = async (req, res) => {
+  try {
+    var options = {
+      'method': 'GET',
+      'url': 'https://api.flutterwave.com/v3/banks/NG',
+      'headers': {
+        'Authorization': `Bearer ${process.env.SECRET_KEY}`
+      }
+    };
+
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+
+      const allBankDetails = Array.from(JSON.parse(response.body).data);
+      const filteredBankDetails = allBankDetails.filter((e) => e.code.length === 3);
+
+      res.status(200).json({
+        success: true,
+        data: filteredBankDetails
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch bank accounts" });
   }
 }
