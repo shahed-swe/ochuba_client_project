@@ -511,10 +511,10 @@ const Wallet = () => {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <p style={{ margin: "0px", color: "gray", fontSize: "14px" }}>
-                    Available balance
+                    Earnings balance
                   </p>
                   <p style={{ margin: "0px", color: "gray", fontSize: "14px" }}>
-                    {userDetails?.amount || "0"}
+                    {userDetails?.profit || "0"}₦
                   </p>
                 </div>
                 <div className="proceed">

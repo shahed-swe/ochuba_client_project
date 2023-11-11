@@ -55,7 +55,7 @@ const Protfolio = () => {
                           <p className="first-text">{item.tradingName}</p>
                           <p className="second-text">{item.share}</p>
                         </div>
-                        <p className="right-text">{item.bidamount}</p>
+                        <p className="right-text">{item.bidamount} ₦</p>
                       </div>
                     </div>
                   </>

@@ -94,13 +94,6 @@ const Sports = () => {
   };
 
   const onChangePrice = (e: any) => {
-    const { name, value } = e.target;
-    var newArr = [...bid, {
-      bid: name,
-      share: "1",
-      bidamount: value
-    }]
-    setBid(newArr)
   };
 
   // const handleChange = (value: string) => {

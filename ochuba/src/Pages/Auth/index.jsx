@@ -16,6 +16,7 @@ import { app } from "./firebase";
 const Login = () => {
   const navigate = useNavigate();
   const [signUp, setSignUp] = useState("login");
+  const [nextPage, setNextPage] = useState(0);
   const [loading, setLoading] = useState(false);
   //   const [disable, setDisable] = useState(true);
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -87,7 +88,7 @@ const Login = () => {
     }
   };
 
-  const handleVerifyCode = async () => {
+  const handleVerifyCode = async () => {    
     if (code) {
       setLoading(true);
       try {
@@ -183,58 +184,76 @@ const Login = () => {
                       />
                     </Col>
                     <Col span={24}>
-                      <h2>Login or Create a New Account</h2>
+                      <h2> {nextPage === 0 ? "Login or Create a New Account" : "Enter OTP"} </h2>
                     </Col>
-                    <Col span={mobileResponsive ? 6 : 4}>
-                      <Form.Item name="country" label=" ">
-                        <Input disabled className="ant-input-affix-wrapper" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={mobileResponsive ? 18 : 20}>
-                      <Form.Item
-                        name="phone_number"
-                        label="Phone Number"
-                        rules={[{ required: true }]}
-                      >
-                        <Input
-                          type="number"
-                          className="ant-input-affix-wrapper"
-                          placeholder="1 XXX XXXX"
-                          onChange={(e)=> setPhoneNumber(e.target.value)}
 
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={16}>
-                      <Form.Item
-                        name="password"
-                        label="OTP"
-                        // rules={[{ required: true }]}
-                      >
-                        <Input
-                          onChange={(e) => setCode(e.target.value)}
-                          className="ant-input-affix-wrapper"
-                          placeholder="Enter valid otp"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item label=" ">
-                        <button
-                          disabled={!code}
-                          onClick={() => handleVerifyCode()}
-                          type="button"
+                    {nextPage === 0 ? (
+                      <>
+                      <Col span={mobileResponsive ? 6 : 4}>
+                        <Form.Item name="country" label=" ">
+                          <Input disabled className="ant-input-affix-wrapper" />
+                        </Form.Item>
+                      </Col>
+                    
+                      <Col span={mobileResponsive ? 18 : 20}>
+                        <Form.Item
+                          name="phone_number"
+                          label="Phone Number"
+                          rules={[{ required: true }]}
+                        >
+                          <Input
+                            type="number"
+                            className="ant-input-affix-wrapper"
+                            placeholder="1 XXX XXXX"
+                            onChange={(e)=> setPhoneNumber(e.target.value)}
+                          />
+                        </Form.Item>
+                      </Col>
+                      
+                      <Col span={24}>
+                        <button 
+                          disabled={confirmationResult?.verificationId} 
+                          type="button" 
+                          onClick={() => {
+                            setNextPage(1);
+                            handleSendCode()
+                          }} 
                           style={{ width: "100%" }}
                         >
-                          Verify OTP
+                          Get OTP via SMS
                         </button>
-                      </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                      <button disabled={confirmationResult?.verificationId} type="button" onClick={()=>handleSendCode()} style={{ width: "100%" }}>
-                        Get OTP via SMS
-                      </button>
-                    </Col>
+                      </Col>
+                      </>
+                    ) : (
+                      <>
+                        <Col span={24}>
+                          <Form.Item
+                            name="password"
+                            label="OTP"
+                            // rules={[{ required: true }]}
+                          >
+                            <Input
+                              onChange={(e) => setCode(e.target.value)}
+                              className="ant-input-affix-wrapper"
+                              placeholder="Enter valid otp"
+                            />
+                          </Form.Item>
+                        </Col>
+
+                        <Col span={24}>
+                          <Form.Item label=" ">
+                            <button
+                              disabled={!code}
+                              onClick={() => handleVerifyCode()}
+                              type="button"
+                              style={{ width: "100%" }}
+                            >
+                              Verify OTP
+                            </button>
+                          </Form.Item>
+                        </Col>
+                      </>
+                    )}
                   </Row>
                 )}
                 {/* {signUp == "signUp" && (

@@ -36,6 +36,14 @@ const userSchema = new mongoose.Schema({
   },
   bids: [],
   history: [],
+  verificationOttp: {
+    type: String,
+    default: null
+  },
+  verificationOttpExpire: {
+    type: Date,
+    default: null
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

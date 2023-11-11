@@ -32,10 +32,6 @@ const TradingScreen = () => {
   const userDetails = useSelector(
     (state) => state?.gernalReducer?.completeUser
   );
-  console.log(
-    selectedtradingShare,
-    "selectedtradingShareselectedtradingShare "
-  );
 
   const [form] = Form.useForm();
 
@@ -61,7 +57,7 @@ const TradingScreen = () => {
           : noBids[noBids?.length - 1]?.bidamount,
     };
 
-    if (doller && doller <= 1000 && doller >= 10) {
+    if (doller && doller <= 100 && doller >= 10) {
       setLoading(true);
 
       fetch(`${baseUrl}/api/v1/admin/trading/bid/${bidId?.id}`, {
@@ -101,7 +97,7 @@ const TradingScreen = () => {
         });
     } else {
       message.warning(
-        "Please enter an amount grater then 10 and less then or equal to 1000"
+        "Please enter an amount greater then 10 and less then or equal to 100"
       );
     }
   };
@@ -159,8 +155,8 @@ const TradingScreen = () => {
       share: sellAmount,
       latestamount:
         outcomeBtn == "yes"
-          ? chartData[chartData?.length - 1]?.bidamount
-          : noBids[noBids?.length - 1]?.bidamount,
+          ? chartData[chartData?.length - 1]?.bidamount || 0
+          : noBids[noBids?.length - 1]?.bidamount || 0,
       oldamount: selectedtradingShare?.oldamount,
       bid: outcomeBtn,
     };
@@ -340,8 +336,20 @@ const TradingScreen = () => {
         )}
 
         {mobileResponsive ? (
-          <Col span={24}>
-            <div className="mobile-btns">
+          <Col span={24} style={{ 
+            position: "fixed", 
+            bottom: "10%", 
+            zIndex: 100,
+            width: "100%",
+            padding: "0.4rem",
+            borderTop: "1px solid #E5E5E5"
+          }}>
+            <div className="mobile-btns"
+            style={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              width: "100% !important"
+            }}>
               <button
                 onClick={() => {
                   setOutcomeBtn("yes");
@@ -434,7 +442,7 @@ const TradingScreen = () => {
                       rules={[
                         {
                           required: true,
-                          message: "please enter your amount",
+                          message: "Please enter your amount",
                         },
                       ]}
                     >
@@ -499,7 +507,7 @@ const TradingScreen = () => {
                           fontSize: "14px",
                         }}
                       >
-                        Est. Shares
+                        Estimated Shares
                       </p>
                       <p
                         style={{
@@ -508,7 +516,7 @@ const TradingScreen = () => {
                           fontSize: "14px",
                         }}
                       >
-                        {selectedtradingShare?.share || "0"}
+                        {chartData[chartData?.length - 1]?.share}
                       </p>
                     </div>
                     <div
@@ -532,11 +540,13 @@ const TradingScreen = () => {
                           color: "gray",
                           fontSize: "14px",
                         }}
-                      >
+                      > 
+                      {console.log(chartData[chartData?.length - 1]?.bidamount)}
                         {outcomeBtn == "yes" &&
-                          chartData[chartData?.length - 1]?.bidamount * selectedtradingShare?.share || "0" }
+                        (100 - Number(chartData[chartData?.length - 1]?.bidamount)) * Number(chartData[chartData?.length - 1]?.share)  
+                        } 
                         {outcomeBtn == "no" &&
-                          noBids[noBids?.length - 1]?.bidamount * selectedtradingShare?.share || "0"}
+                          noBids[noBids?.length - 1]?.bidamount * selectedtradingShare?.share || ""}
                       </p>
                     </div>
 

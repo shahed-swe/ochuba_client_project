@@ -60,6 +60,8 @@ const Sports = () => {
       if (img) {
         formData.append("image", img);
       }
+      console.log(formData);
+      
       fetch(`${baseUrl}/api/v1/admin/trading/finance`, {
         method: "post",
         headers: {
@@ -94,13 +96,6 @@ const Sports = () => {
   };
 
   const onChangePrice = (e: any) => {
-    const { name, value } = e.target;
-    var newArr = [...bid, {
-      bid: name,
-      share: "1",
-      bidamount: value
-    }]
-    setBid(newArr)
   };
 
   // const handleChange = (value: string) => {

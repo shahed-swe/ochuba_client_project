@@ -22,7 +22,7 @@
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.0.3",
     "multer": "*",
-    "nodemailer": "^6.9.5",
+    "nodemailer": "^6.9.7",
     "nodemon": "^2.0.22",
     "request": "^2.88.2",
     "softcity": "file:..",
