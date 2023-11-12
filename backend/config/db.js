@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
-const mongoURI = 'mongodb+srv://shahed:srsas1234DFIN@cluster0.vnbi6.mongodb.net/ochuba?retryWrites=true&w=majority';
 
-const connectToMongo = () => {
-    mongoose.connect(mongoURI)
+const connectToMongo = async () => {
+    const mongoURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ochuba";
+
+    await mongoose.connect(mongoURI)
         .then(() => {
             console.log(`Connected to MongoDB at ${mongoURI}`);
         })
